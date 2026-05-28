@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requêtes 311 — Le Plateau-Mont-Royal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #1a4f8a;
+      --blue-lt: #2e76c8;
+      --red:     #c0392b;
+      --green:   #27ae60;
+      --orange:  #e67e22;
+      --bg:      #f4f6fa;
+      --card:    #ffffff;
+      --border:  #e2e8f0;
+      --text:    #1e293b;
+      --text-lt: #64748b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--blue);
+      color: #fff;
+      padding: 1.1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    header .logo { font-size: 1.6rem; font-weight: 700; letter-spacing: -.5px; }
+    header .logo span { color: #7ec8f7; }
+    header .subtitle { font-size: 0.87rem; opacity: .8; margin-left: auto; }
+
+    /* ── Filter bar ─────────────────────────────────────────── */
+    .filters {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: .65rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .filter-sep {
+      width: 1px; height: 1.4rem; background: var(--border); flex-shrink: 0;
+    }
+    .filters label {
+      font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--text-lt);
+      white-space: nowrap;
+    }
+    .filter-btn {
+      border: 1.5px solid var(--border); background: var(--bg); color: var(--text);
+      padding: .28rem .8rem; border-radius: 2rem; font-size: .82rem;
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: var(--blue-lt); color: var(--blue-lt); }
+    .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+    .filter-btn[data-nature="Requete"].active   { background: #2e76c8; border-color: #2e76c8; }
+    .filter-btn[data-nature="Plainte"].active   { background: var(--red); border-color: var(--red); }
+    .filter-btn[data-nature="Commentaire"].active { background: var(--green); border-color: var(--green); }
+
+    /* ── Activity autocomplete ──────────────────────────────── */
+    .acti-wrap { position: relative; display: flex; align-items: center; gap: .5rem; }
+    .acti-input-wrap { position: relative; }
+    #acti-input {
+      border: 1.5px solid var(--border); border-radius: 2rem;
+      padding: .3rem 1rem; font-size: .82rem; width: 230px;
+      outline: none; transition: border-color .15s;
+      background: var(--bg); color: var(--text);
+    }
+    #acti-input:focus { border-color: var(--blue-lt); }
+    #acti-input::placeholder { color: #aab; }
+    #acti-dropdown {
+      position: absolute; top: calc(100% + 5px); left: 0;
+      width: 340px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.12);
+      z-index: 200; max-height: 300px; overflow-y: auto; display: none;
+    }
+    #acti-dropdown.open { display: block; }
+    .acti-item {
+      padding: .45rem 1rem; font-size: .83rem; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .acti-item:last-child { border-bottom: none; }
+    .acti-item:hover { background: var(--bg); }
+    .acti-item .acti-cnt {
+      font-size: .75rem; color: var(--text-lt); margin-left: .5rem; flex-shrink: 0;
+    }
+    .acti-chip {
+      display: none; align-items: center; gap: .35rem;
+      background: var(--blue); color: #fff;
+      border-radius: 2rem; padding: .28rem .6rem .28rem .85rem;
+      font-size: .82rem; max-width: 280px;
+    }
+    .acti-chip.visible { display: flex; }
+    .acti-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .acti-chip button {
+      background: none; border: none; color: rgba(255,255,255,.8);
+      cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0; flex-shrink: 0;
+    }
+    .acti-chip button:hover { color: #fff; }
+
+    /* ── KPI cards ──────────────────────────────────────────── */
+    main { padding: 1.5rem 2rem 3rem; max-width: 1400px; margin: 0 auto; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.4rem; }
+    .kpi .kpi-label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-lt); margin-bottom: .4rem; }
+    .kpi .kpi-value { font-size: 1.9rem; font-weight: 700; line-height: 1; color: var(--blue); }
+    .kpi .kpi-sub   { font-size: .78rem; color: var(--text-lt); margin-top: .3rem; }
+    .kpi.green  .kpi-value { color: var(--green); }
+    .kpi.orange .kpi-value { color: var(--orange); }
+
+    /* ── Chart grid ─────────────────────────────────────────── */
+    .chart-grid { display: grid; gap: 1.1rem; }
+    .row-1 { grid-template-columns: 1fr; }
+    .row-2 { grid-template-columns: 1fr 1fr; }
+    .row-3 { grid-template-columns: 2fr 1fr; }
+    .gap { margin-bottom: 1.1rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.4rem; }
+    .card h3 { font-size: .78rem; font-weight: 700; color: var(--text-lt); margin-bottom: .9rem; text-transform: uppercase; letter-spacing: .05em; }
+    .chart-wrap { position: relative; }
+    .chart-wrap.tall   { height: 320px; }
+    .chart-wrap.medium { height: 280px; }
+    .chart-wrap.short  { height: 240px; }
+    .chart-wrap.xlarge { height: 400px; }
+
+    /* ── Empty state ────────────────────────────────────────── */
+    .empty { display: flex; align-items: center; justify-content: center;
+             height: 100%; color: var(--text-lt); font-size: .9rem; }
+
+    /* ── Loading overlay ────────────────────────────────────── */
+    #loading {
+      position: fixed; inset: 0; background: rgba(244,246,250,.9);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1rem; z-index: 999; font-size: .95rem; color: var(--text-lt);
+    }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      main { padding: 1rem; }
+      .row-2, .row-3 { grid-template-columns: 1fr; }
+      #acti-input { width: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div>Chargement des données…</div>
+
+<header>
+  <div class="logo">Requêtes <span>311</span></div>
+  <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
+</header>
+
+<div class="filters">
+  <!-- Année -->
+  <label>Année :</label>
+  <button class="filter-btn active" data-year="all">Toutes</button>
+  <button class="filter-btn" data-year="2022">2022</button>
+  <button class="filter-btn" data-year="2023">2023</button>
+  <button class="filter-btn" data-year="2024">2024</button>
+  <button class="filter-btn" data-year="2025">2025</button>
+  <button class="filter-btn" data-year="2026">2026</button>
+
+  <div class="filter-sep"></div>
+
+  <!-- Type -->
+  <label>Type :</label>
+  <button class="filter-btn active" data-nature="all">Tous</button>
+  <button class="filter-btn" data-nature="Requete">Requête</button>
+  <button class="filter-btn" data-nature="Plainte">Plainte</button>
+  <button class="filter-btn" data-nature="Commentaire">Commentaire</button>
+
+  <div class="filter-sep"></div>
+
+  <!-- Activité -->
+  <label>Activité :</label>
+  <div class="acti-wrap">
+    <div class="acti-input-wrap">
+      <input id="acti-input" type="text" placeholder="Rechercher une activité…" autocomplete="off" spellcheck="false" />
+      <div id="acti-dropdown"></div>
+    </div>
+    <div class="acti-chip" id="acti-chip">
+      <span id="acti-chip-text"></span>
+      <button id="acti-clear" title="Effacer">×</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total requêtes</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Taux de complétion</div>
+      <div class="kpi-value" id="kpi-rate">—</div>
+      <div class="kpi-sub"  id="kpi-terminees"></div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-label">Activité principale</div>
+      <div class="kpi-value" id="kpi-top-act" style="font-size:1.05rem;line-height:1.3">—</div>
+      <div class="kpi-sub"   id="kpi-top-cnt"></div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="chart-grid row-1 gap">
+    <div class="card">
+      <h3>Évolution mensuelle des requêtes</h3>
+      <div class="chart-wrap tall"><canvas id="chart-timeline"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Nature + Statut -->
+  <div class="chart-grid row-2 gap">
+    <div class="card">
+      <h3>Par type de requête</h3>
+      <div class="chart-wrap medium"><canvas id="chart-nature"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Par statut final</h3>
+      <div class="chart-wrap medium"><canvas id="chart-status"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top activités -->
+  <div class="chart-grid row-1 gap">
+    <div class="card" id="card-activities">
+      <h3>Top 25 activités</h3>
+      <div class="chart-wrap xlarge"><canvas id="chart-activities"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Provenance + Heure -->
+  <div class="chart-grid row-3 gap">
+    <div class="card">
+      <h3>Canal de contact</h3>
+      <div class="chart-wrap medium"><canvas id="chart-provenance"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Par heure de la journée</h3>
+      <div class="chart-wrap medium"><canvas id="chart-hour"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Jour de la semaine -->
+  <div class="chart-grid row-1">
+    <div class="card">
+      <h3>Par jour de la semaine</h3>
+      <div class="chart-wrap short"><canvas id="chart-weekday"></canvas></div>
+    </div>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script>
+// ── Palette ───────────────────────────────────────────────────────────────────
+const COLORS = [
+  "#2e76c8","#27ae60","#e67e22","#c0392b","#8e44ad",
+  "#16a085","#d35400","#f39c12","#7f8c8d","#1abc9c",
+  "#e74c3c","#9b59b6","#3498db","#2ecc71","#f1c40f",
+  "#34495e","#1a4f8a","#c0392b","#8e44ad","#16a085",
+  "#d35400","#f39c12","#2e76c8","#27ae60","#e67e22",
+];
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.color = "#64748b";
+
+// ── Tooltip style global ──────────────────────────────────────────────────────
+Object.assign(Chart.defaults.plugins.tooltip, {
+  backgroundColor: "rgba(15,23,42,0.88)",
+  titleColor:      "#e2e8f0",
+  bodyColor:       "#94a3b8",
+  borderColor:     "rgba(255,255,255,.08)",
+  borderWidth:     1,
+  padding:         12,
+  cornerRadius:    10,
+  boxPadding:      5,
+  usePointStyle:   true,
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const MONTHS_FR = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+function fmtMonth(ym) {
+  const [y, m] = ym.split("-");
+  return `${MONTHS_FR[+m - 1]} ${y}`;
+}
+function pctLabel(val, data) {
+  const total = data.reduce((a, b) => a + b, 0);
+  const pct = total > 0 ? (val / total * 100).toFixed(1) : "0.0";
+  return ` ${fmt(val)} requêtes  (${pct} %)`;
+}
+
+// ── Crosshair plugin (ligne verticale sur la timeline) ────────────────────────
+const crosshairPlugin = {
+  id: "crosshair",
+  afterDraw(chart) {
+    const active = chart.tooltip._active;
+    if (!active || !active.length) return;
+    const { ctx, scales: { y } } = chart;
+    const x = active[0].element.x;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, y.top);
+    ctx.lineTo(x, y.bottom);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(46,118,200,.3)";
+    ctx.setLineDash([5, 4]);
+    ctx.stroke();
+    ctx.restore();
+  },
+};
+
+// ── Pre-computed helpers ──────────────────────────────────────────────────────
+// Map month_idx → year string, for fast year-filtering without string slicing per row
+const MONTH_YEAR = MONTHS.map(m => m.slice(0, 4));
+
+// Pre-compute per-activity overall counts (for autocomplete hints)
+const ACTI_TOTAL = new Int32Array(ACTIVITIES.length);
+for (const [, , ai] of ROWS) if (ai >= 0) ACTI_TOTAL[ai]++;
+
+const TERM_IDX = STATUSES.indexOf("Terminée");
+
+// ── Core aggregation ──────────────────────────────────────────────────────────
+function aggregate(yearFilter, natureIdx, actiIdx) {
+  // Pre-compute valid month set for year filter
+  let validMonths = null;
+  if (yearFilter !== "all") {
+    validMonths = new Uint8Array(MONTHS.length);
+    for (let i = 0; i < MONTHS.length; i++)
+      if (MONTH_YEAR[i] === yearFilter) validMonths[i] = 1;
+  }
+
+  const byMonth   = {};
+  const byNature  = {};
+  const byStatus  = {};
+  const byHour    = new Int32Array(24);
+  const byWeekday = new Int32Array(7);
+  const byProv    = new Int32Array(PROV_LABELS.length);
+  const byActi    = new Int32Array(ACTIVITIES.length);
+  let total = 0, terminees = 0;
+
+  for (const row of ROWS) {
+    const mi = row[0], ni = row[1], ai = row[2], si = row[3],
+          prov = row[4], wd = row[5], h = row[6];
+
+    if (validMonths && !validMonths[mi]) continue;
+    if (natureIdx >= 0 && ni !== natureIdx) continue;
+    if (actiIdx   >= 0 && ai !== actiIdx)  continue;
+
+    total++;
+    const m = MONTHS[mi];
+    byMonth[m] = (byMonth[m] || 0) + 1;
+
+    if (ni >= 0) { const n = NATURES[ni]; byNature[n] = (byNature[n] || 0) + 1; }
+    if (si >= 0) {
+      const s = STATUSES[si]; byStatus[s] = (byStatus[s] || 0) + 1;
+      if (si === TERM_IDX) terminees++;
+    }
+
+    byHour[h]++;
+    byWeekday[wd]++;
+    for (let b = 0; b < PROV_LABELS.length; b++)
+      if (prov & (1 << b)) byProv[b]++;
+    if (ai >= 0) byActi[ai]++;
+  }
+
+  // Top 25 activities
+  const entries = [];
+  for (let i = 0; i < ACTIVITIES.length; i++) if (byActi[i] > 0) entries.push([i, byActi[i]]);
+  entries.sort((a, b) => b[1] - a[1]);
+  const topActivities = entries.slice(0, 25).map(([i, c]) => [ACTIVITIES[i], c]);
+
+  const top0 = entries[0];
+  return {
+    summary: {
+      total, terminees,
+      taux_completion: total > 0 ? +(terminees / total * 100).toFixed(1) : 0,
+      top_activite:     top0 ? ACTIVITIES[top0[0]] : "",
+      top_activite_cnt: top0 ? top0[1] : 0,
+    },
+    byMonth:      Object.entries(byMonth).sort((a,b) => a[0] < b[0] ? -1 : 1),
+    byNature,
+    byStatus,
+    byHour:       Array.from(byHour),
+    byWeekday:    Array.from(byWeekday),
+    byProv:       Array.from(byProv),
+    topActivities,
+  };
+}
+
+// ── Chart helpers ─────────────────────────────────────────────────────────────
+let charts = {};
+function destroyAll() { Object.values(charts).forEach(c => c.destroy()); charts = {}; }
+function fmt(n) { return n == null ? "—" : Number(n).toLocaleString("fr-CA"); }
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  destroyAll();
+
+  const natIdx  = currentNature === "all" ? -1 : NATURES.indexOf(currentNature);
+  const actiIdx = currentActi;
+
+  const d = aggregate(currentYear, natIdx, actiIdx);
+
+  // For the nature donut: always show full distribution (no nature filter), highlight selected
+  const dFull = (natIdx >= 0) ? aggregate(currentYear, -1, actiIdx) : d;
+
+  // KPIs
+  document.getElementById("kpi-total").textContent    = fmt(d.summary.total);
+  document.getElementById("kpi-rate").textContent      = d.summary.taux_completion + " %";
+  document.getElementById("kpi-terminees").textContent = fmt(d.summary.terminees) + " terminées";
+  document.getElementById("kpi-top-act").textContent   = d.summary.top_activite || "—";
+  document.getElementById("kpi-top-cnt").textContent   = fmt(d.summary.top_activite_cnt) + " requêtes";
+
+  // ── Timeline ────────────────────────────────────────────────
+  const months = d.byMonth.map(r => r[0]);
+  const counts = d.byMonth.map(r => r[1]);
+  charts.timeline = new Chart(document.getElementById("chart-timeline"), {
+    type: "line",
+    plugins: [crosshairPlugin],
+    data: { labels: months, datasets: [{
+      label: "Requêtes", data: counts,
+      borderColor: "#2e76c8", backgroundColor: "rgba(46,118,200,.12)",
+      borderWidth: 2,
+      pointRadius: 0, pointHoverRadius: 6,
+      pointHoverBackgroundColor: "#fff", pointHoverBorderColor: "#2e76c8", pointHoverBorderWidth: 2,
+      fill: true, tension: .35,
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          title: ([ctx]) => fmtMonth(ctx.label),
+          label: (ctx) => ` ${fmt(ctx.parsed.y)} requêtes`,
+          afterLabel: (ctx) => {
+            const i = ctx.dataIndex;
+            if (i === 0) return "";
+            const prev = counts[i - 1];
+            if (!prev) return "";
+            const diff = ctx.parsed.y - prev;
+            const sign = diff >= 0 ? "+" : "";
+            const pct  = (diff / prev * 100).toFixed(1);
+            return `  ${sign}${fmt(diff)}  (${sign}${pct} % vs mois préc.)`;
+          },
+        }},
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 24 } },
+        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+      },
+    },
+  });
+
+  // ── Nature donut ────────────────────────────────────────────
+  const natLabels = Object.keys(dFull.byNature);
+  const natData   = Object.values(dFull.byNature);
+  const natColors = natLabels.map((l, i) =>
+    natIdx >= 0 && l !== currentNature ? "rgba(0,0,0,.08)" : COLORS[i]
+  );
+  charts.nature = new Chart(document.getElementById("chart-nature"), {
+    type: "doughnut",
+    data: { labels: natLabels, datasets: [{ data: natData, backgroundColor: natColors, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom" },
+        tooltip: { callbacks: { label: ctx => {
+          const tot = natData.reduce((a,b) => a+b, 0);
+          return ` ${ctx.label}: ${fmt(ctx.parsed)} (${(ctx.parsed/tot*100).toFixed(1)} %)`;
+        }}},
+      },
+    },
+  });
+
+  // ── Status ──────────────────────────────────────────────────
+  const stLabels = Object.keys(d.byStatus);
+  const stData   = Object.values(d.byStatus);
+  const stColors = stLabels.map(l => ({
+    "Terminée": "#27ae60", "Refusée": "#c0392b", "Annulée": "#e67e22", "Urgente": "#8e44ad",
+  }[l] || "#2e76c8"));
+  charts.status = new Chart(document.getElementById("chart-status"), {
+    type: "bar",
+    data: { labels: stLabels, datasets: [{ data: stData, backgroundColor: stColors, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: "y",
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.x, stData) } },
+      },
+      scales: { x: { grid: { color: "#f0f4f8" }, beginAtZero: true }, y: { grid: { display: false } } },
+    },
+  });
+
+  // ── Top activités ────────────────────────────────────────────
+  const actCard = document.getElementById("card-activities");
+  if (actiIdx >= 0) {
+    // Filtré sur une activité → le chart top-activités n'a qu'une barre, on le masque
+    actCard.style.display = "none";
+  } else {
+    actCard.style.display = "";
+    const actLabels = d.topActivities.map(r => r[0]);
+    const actData   = d.topActivities.map(r => r[1]);
+    charts.activities = new Chart(document.getElementById("chart-activities"), {
+      type: "bar",
+      data: { labels: actLabels, datasets: [{ data: actData, backgroundColor: actLabels.map((_,i) => COLORS[i % COLORS.length]), borderRadius: 4 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: "y",
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.x, actData) } },
+        },
+        scales: { x: { grid: { color: "#f0f4f8" }, beginAtZero: true }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } },
+      },
+    });
+  }
+
+  // ── Provenance ────────────────────────────────────────────────
+  charts.provenance = new Chart(document.getElementById("chart-provenance"), {
+    type: "bar",
+    data: { labels: PROV_LABELS, datasets: [{ data: d.byProv, backgroundColor: COLORS, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.y, d.byProv) } },
+      },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+    },
+  });
+
+  // ── Heure ─────────────────────────────────────────────────────
+  const hourLabels = Array.from({length: 24}, (_, i) => `${String(i).padStart(2,"0")}h`);
+  const maxH = Math.max(...d.byHour, 1);
+  charts.hour = new Chart(document.getElementById("chart-hour"), {
+    type: "bar",
+    data: { labels: hourLabels, datasets: [{ data: d.byHour, borderRadius: 2,
+      backgroundColor: d.byHour.map(v => `rgba(46,118,200,${.25 + v/maxH*.75})`),
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          title: ([ctx]) => {
+            const h = ctx.dataIndex;
+            return `${String(h).padStart(2,"0")}h00 – ${String(h+1).padStart(2,"0")}h00`;
+          },
+          label: ctx => pctLabel(ctx.parsed.y, d.byHour),
+        }},
+      },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: true, maxTicksLimit: 12 } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+    },
+  });
+
+  // ── Jour de la semaine ────────────────────────────────────────
+  charts.weekday = new Chart(document.getElementById("chart-weekday"), {
+    type: "bar",
+    data: { labels: WEEKDAYS, datasets: [{ data: d.byWeekday, borderRadius: 4,
+      backgroundColor: d.byWeekday.map((_, i) => i >= 5 ? "#e67e22" : "#2e76c8"),
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.y, d.byWeekday) } },
+      },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+    },
+  });
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentYear   = "all";
+let currentNature = "all";
+let currentActi   = -1;      // index into ACTIVITIES, -1 = aucun filtre
+
+// ── Year buttons ──────────────────────────────────────────────────────────────
+document.querySelectorAll("[data-year]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-year]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentYear = btn.dataset.year;
+    render();
+  });
+});
+
+// ── Nature buttons ────────────────────────────────────────────────────────────
+document.querySelectorAll("[data-nature]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-nature]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentNature = btn.dataset.nature;
+    render();
+  });
+});
+
+// ── Activity autocomplete ─────────────────────────────────────────────────────
+const actiInput    = document.getElementById("acti-input");
+const actiDropdown = document.getElementById("acti-dropdown");
+const actiChip     = document.getElementById("acti-chip");
+const actiChipText = document.getElementById("acti-chip-text");
+const actiClear    = document.getElementById("acti-clear");
+
+function showDropdown(query) {
+  const q = query.trim().toLowerCase();
+  const matches = [];
+  for (let i = 0; i < ACTIVITIES.length && matches.length < 12; i++) {
+    if (!q || ACTIVITIES[i].toLowerCase().includes(q)) matches.push(i);
+  }
+  if (!matches.length) { actiDropdown.classList.remove("open"); return; }
+
+  actiDropdown.innerHTML = matches.map(i => `
+    <div class="acti-item" data-idx="${i}">
+      <span>${ACTIVITIES[i]}</span>
+      <span class="acti-cnt">${fmt(ACTI_TOTAL[i])}</span>
+    </div>`).join("");
+
+  actiDropdown.querySelectorAll(".acti-item").forEach(el => {
+    el.addEventListener("mousedown", e => {
+      e.preventDefault();
+      selectActivity(+el.dataset.idx);
+    });
+  });
+  actiDropdown.classList.add("open");
+}
+
+function selectActivity(idx) {
+  currentActi = idx;
+  actiInput.value = "";
+  actiDropdown.classList.remove("open");
+  actiChipText.textContent = ACTIVITIES[idx];
+  actiChip.classList.add("visible");
+  render();
+}
+
+function clearActivity() {
+  currentActi = -1;
+  actiInput.value = "";
+  actiChip.classList.remove("visible");
+  actiDropdown.classList.remove("open");
+  render();
+}
+
+actiInput.addEventListener("input",  () => showDropdown(actiInput.value));
+actiInput.addEventListener("focus",  () => showDropdown(actiInput.value));
+actiInput.addEventListener("blur",   () => setTimeout(() => actiDropdown.classList.remove("open"), 150));
+actiClear.addEventListener("click",  clearActivity);
+
+// Close dropdown on outside click
+document.addEventListener("click", e => {
+  if (!actiInput.contains(e.target) && !actiDropdown.contains(e.target))
+    actiDropdown.classList.remove("open");
+});
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
+document.getElementById("loading").style.display = "none";
+render();
+</script>
+</body>
+</html>
