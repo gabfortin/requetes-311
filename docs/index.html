@@ -274,8 +274,11 @@
   </div>
 </main>
 
-<script src="data.js"></script>
 <script>
+// MONTHS, NATURES, ACTIVITIES, STATUSES, WEEKDAYS, PROV_LABELS, ROWS
+// sont déclarés par data.js (var globaux) — initialisés dans init()
+let MONTH_YEAR, ACTI_TOTAL, TERM_IDX;
+
 // ── Palette ───────────────────────────────────────────────────────────────────
 const COLORS = [
   "#2e76c8","#27ae60","#e67e22","#c0392b","#8e44ad",
@@ -332,15 +335,7 @@ const crosshairPlugin = {
   },
 };
 
-// ── Pre-computed helpers ──────────────────────────────────────────────────────
-// Map month_idx → year string, for fast year-filtering without string slicing per row
-const MONTH_YEAR = MONTHS.map(m => m.slice(0, 4));
-
-// Pre-compute per-activity overall counts (for autocomplete hints)
-const ACTI_TOTAL = new Int32Array(ACTIVITIES.length);
-for (const [, , ai] of ROWS) if (ai >= 0) ACTI_TOTAL[ai]++;
-
-const TERM_IDX = STATUSES.indexOf("Terminée");
+// (MONTH_YEAR, ACTI_TOTAL, TERM_IDX sont initialisés dans init() après le fetch)
 
 // ── Core aggregation ──────────────────────────────────────────────────────────
 function aggregate(yearFilter, natureIdx, actiIdx) {
@@ -681,9 +676,37 @@ document.addEventListener("click", e => {
     actiDropdown.classList.remove("open");
 });
 
-// ── Bootstrap ─────────────────────────────────────────────────────────────────
-document.getElementById("loading").style.display = "none";
-render();
+// ── Bootstrap async (script tag — fonctionne sur file:// et HTTP) ─────────────
+async function init() {
+  const loadingEl = document.getElementById("loading");
+  try {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "data.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("Fichier data.js introuvable"));
+      document.head.appendChild(s);
+    });
+
+    // Helpers pré-calculés à partir des vars globales de data.js
+    MONTH_YEAR = MONTHS.map(m => m.slice(0, 4));
+    ACTI_TOTAL = new Int32Array(ACTIVITIES.length);
+    for (const [,, ai] of ROWS) if (ai >= 0) ACTI_TOTAL[ai]++;
+    TERM_IDX = STATUSES.indexOf("Terminée");
+
+    loadingEl.style.display = "none";
+    render();
+  } catch (e) {
+    loadingEl.innerHTML = `
+      <div style="text-align:center;color:#64748b;padding:2rem">
+        <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
+        <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
+        <div style="font-size:.85rem">${e.message}</div>
+      </div>`;
+  }
+}
+
+init();
 </script>
 </body>
 </html>

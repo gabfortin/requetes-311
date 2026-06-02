@@ -90,21 +90,16 @@ for r in raw:
 
 print(f"  {len(encoded):,} lignes encodées")
 
-# ── Écriture ──────────────────────────────────────────────────────────────────
-js = (
-    "// Données 311 – Le Plateau-Mont-Royal (généré automatiquement)\n"
-    f"const MONTHS     = {json.dumps(months,     ensure_ascii=False)};\n"
-    f"const NATURES    = {json.dumps(natures,    ensure_ascii=False)};\n"
-    f"const ACTIVITIES = {json.dumps(activities, ensure_ascii=False)};\n"
-    f"const STATUSES   = {json.dumps(statuses,   ensure_ascii=False)};\n"
-    f"const WEEKDAYS   = {json.dumps(['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'])};\n"
-    f"const PROV_LABELS= {json.dumps(PROV_LABELS, ensure_ascii=False)};\n"
-    "// [month_idx, nature_idx, acti_idx, status_idx, prov_mask, weekday, hour]\n"
-    f"const ROWS = {json.dumps(encoded)};\n"
-)
-
+# ── Écriture JS ───────────────────────────────────────────────────────────────
 os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
 with open(OUT_PATH, "w", encoding="utf-8") as f:
-    f.write(js)
+    f.write("// Données 311 – Le Plateau-Mont-Royal (généré automatiquement)\n")
+    f.write(f"var MONTHS={json.dumps(months, ensure_ascii=False, separators=(',',':'))};\n")
+    f.write(f"var NATURES={json.dumps(natures, ensure_ascii=False, separators=(',',':'))};\n")
+    f.write(f"var ACTIVITIES={json.dumps(activities, ensure_ascii=False, separators=(',',':'))};\n")
+    f.write(f"var STATUSES={json.dumps(statuses, ensure_ascii=False, separators=(',',':'))};\n")
+    f.write(f"var WEEKDAYS={json.dumps(['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'])};\n")
+    f.write(f"var PROV_LABELS={json.dumps(PROV_LABELS, ensure_ascii=False, separators=(',',':'))};\n")
+    f.write(f"var ROWS={json.dumps(encoded, separators=(',',':'))};\n")
 
 print(f"Écrit : {OUT_PATH} ({os.path.getsize(OUT_PATH):,} octets)")
