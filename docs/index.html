@@ -763,16 +763,37 @@ document.addEventListener("click", e => {
 });
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error(`Fichier ${src} introuvable`));
+    document.head.appendChild(s);
+  });
+}
+
+async function fetchJSON(url) {
+  const res = await fetch(url, { cache: "no-cache" });
+  if (!res.ok) throw new Error(`${url} : HTTP ${res.status}`);
+  return res.json();
+}
+
+// Les réseaux mobiles coupent parfois un téléchargement en plein milieu ;
+// on retente une fois avant d'abandonner.
+async function withRetry(fn, attempts = 2) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try { return await fn(); } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
+}
+
 async function init() {
   const loadingEl = document.getElementById("loading");
   try {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = "data.js";
-      s.onload = resolve;
-      s.onerror = () => reject(new Error("Fichier data.js introuvable"));
-      document.head.appendChild(s);
-    });
+    await withRetry(() => loadScript("data.js"));
+    window.ROWS = await withRetry(() => fetchJSON("rows.json"));
 
     MONTH_YEAR = MONTHS.map(m => m.slice(0, 4));
     ACTI_TOTAL = new Int32Array(ACTIVITIES.length);

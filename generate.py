@@ -11,6 +11,7 @@ from collections import Counter
 
 CSV_PATH = os.path.join(os.path.dirname(__file__), "requetes311.csv")
 OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "data.js")
+ROWS_PATH = os.path.join(os.path.dirname(__file__), "docs", "rows.json")
 ARROND = "Le Plateau-Mont-Royal"
 
 # Colonnes de provenance à inclure (on exclut les quasi-nulles)
@@ -43,7 +44,7 @@ raw = con.execute(f"""
         {prov_select},
         dayofweek(DDS_DATE_CREATION::TIMESTAMP) AS wd,
         HOUR(DDS_DATE_CREATION::TIMESTAMP)      AS h
-    FROM read_csv_auto('{CSV_PATH}')
+    FROM read_csv_auto('{CSV_PATH}', ignore_errors=true)
     WHERE ARRONDISSEMENT = '{ARROND}'
       AND DDS_DATE_CREATION IS NOT NULL
     ORDER BY month
@@ -91,6 +92,10 @@ for r in raw:
 print(f"  {len(encoded):,} lignes encodées")
 
 # ── Écriture JS ───────────────────────────────────────────────────────────────
+# ROWS est volumineux (>2 Mo) : on l'écrit en JSON pur dans un fichier séparé,
+# chargé via fetch()+JSON.parse() côté client (plus robuste et moins gourmand
+# en mémoire qu'un énorme littéral JS évalué via <script>, ce qui plantait sur
+# certains mobiles).
 os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
 with open(OUT_PATH, "w", encoding="utf-8") as f:
     f.write("// Données 311 – Le Plateau-Mont-Royal (généré automatiquement)\n")
@@ -100,9 +105,12 @@ with open(OUT_PATH, "w", encoding="utf-8") as f:
     f.write(f"var STATUSES={json.dumps(statuses, ensure_ascii=False, separators=(',',':'))};\n")
     f.write(f"var WEEKDAYS={json.dumps(['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'])};\n")
     f.write(f"var PROV_LABELS={json.dumps(PROV_LABELS, ensure_ascii=False, separators=(',',':'))};\n")
-    f.write(f"var ROWS={json.dumps(encoded, separators=(',',':'))};\n")
+
+with open(ROWS_PATH, "w", encoding="utf-8") as f:
+    f.write(json.dumps(encoded, separators=(',', ':')))
 
 print(f"Écrit : {OUT_PATH} ({os.path.getsize(OUT_PATH):,} octets)")
+print(f"Écrit : {ROWS_PATH} ({os.path.getsize(ROWS_PATH):,} octets)")
 
 # ── Données propreté ──────────────────────────────────────────────────────────
 PROPRETE_CATS = [
@@ -130,7 +138,7 @@ for cat in PROPRETE_CATS:
             strftime(DDS_DATE_CREATION::TIMESTAMP, '%Y-%m') AS month,
             COUNT(*) AS total,
             SUM(CASE WHEN DERNIER_STATUT = '{TERM_STATUS}' THEN 1 ELSE 0 END) AS terminees
-        FROM read_csv_auto('{CSV_PATH}')
+        FROM read_csv_auto('{CSV_PATH}', ignore_errors=true)
         WHERE ARRONDISSEMENT = '{ARROND}'
           AND ACTI_NOM IN ({','.join("'" + a.replace("'","''") + "'" for a in cat_set)})
           AND DDS_DATE_CREATION IS NOT NULL
