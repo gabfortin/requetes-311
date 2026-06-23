@@ -103,3 +103,58 @@ with open(OUT_PATH, "w", encoding="utf-8") as f:
     f.write(f"var ROWS={json.dumps(encoded, separators=(',',':'))};\n")
 
 print(f"Écrit : {OUT_PATH} ({os.path.getsize(OUT_PATH):,} octets)")
+
+# ── Données propreté ──────────────────────────────────────────────────────────
+PROPRETE_CATS = [
+    {"id": "depots",     "label": "Dépôts illégaux",     "icon": "🗑️",  "color": "#c0392b",
+     "activities": ["Dépôt illégal - Déchets", "Dépôt Illégal - Neige"]},
+    {"id": "nettoyage",  "label": "Nettoyage",            "icon": "🧹",  "color": "#16a085",
+     "activities": ["Nettoyage du domaine public"]},
+    {"id": "ordures",    "label": "Collecte ordures",     "icon": "🚛",  "color": "#2e76c8",
+     "activities": ["Collecte de déchets", "Encombrants non ramassés",
+                    "Collecte des encombrants", "Bac roulant", "Bac montréalais (67 litres)"]},
+    {"id": "recyclage",  "label": "Collecte recyclage",   "icon": "♻️",  "color": "#8e44ad",
+     "activities": ["Collecte des matières recyclables", "Bac roulant - Matières recyclables"]},
+    {"id": "organiques", "label": "Collecte organiques",  "icon": "🌱",  "color": "#e67e22",
+     "activities": ["Collecte de résidus alimentaires", "Bac roulant - Résidus alimentaires",
+                    "Collecte de résidus verts", "Collecte des matières organiques"]},
+]
+
+TERM_STATUS = "Terminée"
+proprete_data = {}   # {month: {cat_id: {"t": total, "d": terminees}}}
+
+for cat in PROPRETE_CATS:
+    cat_set = set(cat["activities"])
+    rows_cat = con.execute(f"""
+        SELECT
+            strftime(DDS_DATE_CREATION::TIMESTAMP, '%Y-%m') AS month,
+            COUNT(*) AS total,
+            SUM(CASE WHEN DERNIER_STATUT = '{TERM_STATUS}' THEN 1 ELSE 0 END) AS terminees
+        FROM read_csv_auto('{CSV_PATH}')
+        WHERE ARRONDISSEMENT = '{ARROND}'
+          AND ACTI_NOM IN ({','.join("'" + a.replace("'","''") + "'" for a in cat_set)})
+          AND DDS_DATE_CREATION IS NOT NULL
+        GROUP BY month ORDER BY month
+    """).fetchall()
+
+    for row in rows_cat:
+        m = row[0]
+        if m not in proprete_data:
+            proprete_data[m] = {}
+        proprete_data[m][cat["id"]] = {"t": row[1], "d": int(row[2] or 0)}
+
+all_months_sorted = sorted(proprete_data.keys())
+ref_month = all_months_sorted[-1]
+
+proprete_out = os.path.join(os.path.dirname(OUT_PATH), "proprete_data.js")
+cats_meta = [{"id": c["id"], "label": c["label"], "icon": c["icon"], "color": c["color"]}
+             for c in PROPRETE_CATS]
+
+with open(proprete_out, "w", encoding="utf-8") as f:
+    f.write("// Données propreté – Le Plateau-Mont-Royal (généré automatiquement)\n")
+    f.write(f"var PROPRETE_REF_MONTH={json.dumps(ref_month)};\n")
+    f.write(f"var PROPRETE_CATS={json.dumps(cats_meta, ensure_ascii=False, separators=(',',':'))};\n")
+    f.write(f"var PROPRETE_MONTHS={json.dumps(all_months_sorted, separators=(',',':'))};\n")
+    f.write(f"var PROPRETE_DATA={json.dumps(proprete_data, ensure_ascii=False, separators=(',',':'))};\n")
+
+print(f"Écrit : {proprete_out} ({os.path.getsize(proprete_out):,} octets)")

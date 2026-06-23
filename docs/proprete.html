@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propreté — Le Plateau-Mont-Royal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #1a4f8a;
+      --blue-lt: #2e76c8;
+      --green:   #16a085;
+      --red:     #c0392b;
+      --bg:      #f4f6fa;
+      --card:    #ffffff;
+      --border:  #e2e8f0;
+      --text:    #1e293b;
+      --text-lt: #64748b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--blue); color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    header .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -.5px; }
+    header .logo span { color: #7ec8f7; }
+    header .subtitle { font-size: .83rem; opacity: .75; margin-left: auto; }
+
+    /* ── Tabs ───────────────────────────────────────────────── */
+    .tabs {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; gap: 0;
+    }
+    .tab {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .7rem 1.1rem;
+      font-size: .85rem; font-weight: 500;
+      color: var(--text-lt); text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+      transition: all .15s; white-space: nowrap;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+
+    /* ── Main ───────────────────────────────────────────────── */
+    main { padding: 1.5rem 1.5rem 4rem; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Period reference banner ────────────────────────────── */
+    .period-banner {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 10px; padding: .85rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .period-banner .period-title {
+      font-weight: 700; font-size: .9rem; color: var(--blue);
+    }
+    .period-badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 2rem; padding: .22rem .7rem;
+      font-size: .8rem; color: var(--text-lt); white-space: nowrap;
+    }
+    .period-badge strong { color: var(--text); }
+    .period-partial {
+      font-size: .75rem; color: var(--text-lt); opacity: .8;
+      margin-left: auto;
+    }
+
+    /* ── Section titles ─────────────────────────────────────── */
+    .section-title {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--text-lt); margin: 1.5rem 0 .85rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .section-title::after {
+      content: ""; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── KPI cards ──────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-top: 3px solid var(--cat-color, var(--blue));
+      border-radius: 12px; padding: 1.1rem 1.25rem;
+    }
+    .kpi-cat-header {
+      display: flex; align-items: center; gap: .5rem;
+      margin-bottom: .6rem;
+    }
+    .kpi-icon { font-size: 1.3rem; line-height: 1; }
+    .kpi-cat-label {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--cat-color, var(--blue));
+    }
+    .kpi-main {
+      font-size: 2rem; font-weight: 700; line-height: 1;
+      color: var(--text); margin-bottom: .15rem;
+    }
+    .kpi-sub-label {
+      font-size: .75rem; color: var(--text-lt); margin-bottom: .85rem;
+    }
+
+    /* Comparison rows */
+    .kpi-comparisons { display: flex; flex-direction: column; gap: .3rem; }
+    .kpi-comp-row {
+      display: grid; grid-template-columns: 1fr auto auto;
+      align-items: center; gap: .5rem;
+      font-size: .78rem; padding: .25rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .kpi-comp-row:last-child { border-bottom: none; }
+    .kpi-comp-label { color: var(--text-lt); }
+    .kpi-comp-abs { color: var(--text-lt); font-size: .73rem; }
+
+    /* Trend badges */
+    .trend {
+      display: inline-flex; align-items: center; gap: .2rem;
+      padding: .15rem .45rem; border-radius: 2rem;
+      font-size: .75rem; font-weight: 600; white-space: nowrap;
+    }
+    .trend.better  { background: #d1fae5; color: #065f46; }
+    .trend.worse   { background: #fee2e2; color: #7f1d1d; }
+    .trend.neutral { background: var(--bg); color: var(--text-lt); }
+
+    /* Completion */
+    .kpi-completion {
+      margin-top: .75rem;
+      font-size: .75rem; color: var(--text-lt);
+      padding-top: .5rem; border-top: 1px dashed var(--border);
+    }
+    .kpi-completion strong { color: var(--text); }
+
+    /* ── Chart section ──────────────────────────────────────── */
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.4rem;
+    }
+    .chart-card h3 {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--text-lt); margin-bottom: .85rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .5rem;
+    }
+    .chart-wrap { position: relative; }
+    .chart-wrap.tall   { height: 320px; }
+    .chart-wrap.medium { height: 270px; }
+
+    /* Toggle buttons */
+    .toggle-group { display: flex; gap: .35rem; }
+    .toggle-btn {
+      border: 1.5px solid var(--border); background: var(--bg);
+      color: var(--text-lt); padding: .22rem .65rem;
+      border-radius: 2rem; font-size: .75rem;
+      cursor: pointer; transition: all .15s;
+    }
+    .toggle-btn.active {
+      background: var(--blue); border-color: var(--blue);
+      color: #fff; font-weight: 600;
+    }
+
+    /* ── Chart grid ─────────────────────────────────────────── */
+    .chart-grid-2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+
+    /* ── Loading ────────────────────────────────────────────── */
+    #loading {
+      position: fixed; inset: 0; background: rgba(244,246,250,.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem; z-index: 999; font-size: .93rem; color: var(--text-lt);
+    }
+    .spinner {
+      width: 34px; height: 34px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Mobile ─────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      main { padding: .9rem .9rem 3rem; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .chart-grid-2 { grid-template-columns: 1fr; }
+      .chart-wrap.tall { height: 250px; }
+      .chart-wrap.medium { height: 210px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div>Chargement des données…</div>
+
+<header>
+  <div class="logo">Requêtes <span>311</span></div>
+  <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
+</header>
+
+<nav class="tabs">
+  <a class="tab" href="index.html">Vue d'ensemble</a>
+  <a class="tab active">🧹 Propreté</a>
+</nav>
+
+<main>
+  <!-- Period banner -->
+  <div class="period-banner" id="period-banner">
+    <span class="period-title">Période de référence</span>
+    <span class="period-badge" id="pb-ref"></span>
+    <span class="period-badge" id="pb-m1"></span>
+    <span class="period-badge" id="pb-m2"></span>
+    <span class="period-badge" id="pb-y1"></span>
+    <span class="period-badge" id="pb-y2"></span>
+    <span class="period-partial">* Le mois en cours peut être incomplet</span>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="section-title">Bilan du mois de référence</div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <!-- Timeline -->
+  <div class="section-title">Évolution sur 24 mois</div>
+  <div class="chart-card">
+    <h3>
+      Requêtes par catégorie
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btn-abs">Valeurs</button>
+        <button class="toggle-btn" id="btn-idx">Indexé (base 100)</button>
+      </div>
+    </h3>
+    <div class="chart-wrap tall"><canvas id="chart-timeline"></canvas></div>
+  </div>
+
+  <!-- Period comparison -->
+  <div class="section-title">Comparaison des périodes clés</div>
+  <div class="chart-card">
+    <h3>Requêtes : mois actuel vs mois précédents et mêmes mois les années passées</h3>
+    <div class="chart-wrap medium"><canvas id="chart-comparison"></canvas></div>
+  </div>
+
+  <!-- Completion rate -->
+  <div class="section-title">Taux de complétion sur 24 mois</div>
+  <div class="chart-card">
+    <h3>% de requêtes terminées</h3>
+    <div class="chart-wrap medium"><canvas id="chart-completion"></canvas></div>
+  </div>
+</main>
+
+<script>
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const MONTHS_FR = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+function fmtMonth(ym) {
+  if (!ym) return "—";
+  const [y, m] = ym.split("-");
+  return `${MONTHS_FR[+m - 1]} ${y}`;
+}
+function fmt(n) { return n == null ? "—" : Number(n).toLocaleString("fr-CA"); }
+
+function offsetMonth(base, offset) {
+  const [y, m] = base.split("-").map(Number);
+  let nm = m + offset, ny = y;
+  while (nm <= 0) { nm += 12; ny--; }
+  while (nm > 12) { nm -= 12; ny++; }
+  return `${ny}-${String(nm).padStart(2, "0")}`;
+}
+
+function getData(month, catId) {
+  return PROPRETE_DATA[month]?.[catId] ?? null;
+}
+
+function trendPct(curr, prevVal) {
+  if (prevVal == null || prevVal === 0) return null;
+  return (curr - prevVal) / prevVal * 100;
+}
+
+function trendBadge(pct) {
+  if (pct === null) return `<span class="trend neutral">—</span>`;
+  const sign = pct >= 0 ? "+" : "";
+  const cls   = pct > 5 ? "worse" : pct < -5 ? "better" : "neutral";
+  const arrow  = pct > 5 ? "↑" : pct < -5 ? "↓" : "→";
+  return `<span class="trend ${cls}">${arrow} ${sign}${pct.toFixed(1)}&thinsp;%</span>`;
+}
+
+// ── Chart setup ───────────────────────────────────────────────────────────────
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.color = "#64748b";
+Object.assign(Chart.defaults.plugins.tooltip, {
+  backgroundColor: "rgba(15,23,42,0.88)",
+  titleColor: "#e2e8f0", bodyColor: "#94a3b8",
+  borderColor: "rgba(255,255,255,.08)", borderWidth: 1,
+  padding: 12, cornerRadius: 10, boxPadding: 5, usePointStyle: true,
+});
+
+let charts = {};
+function destroyAll() { Object.values(charts).forEach(c => c.destroy()); charts = {}; }
+
+// ── Build KPI cards ───────────────────────────────────────────────────────────
+function buildKpiCards(ref, m1, m2, y1, y2) {
+  const grid = document.getElementById("kpi-grid");
+  grid.innerHTML = PROPRETE_CATS.map(cat => {
+    const dRef = getData(ref, cat.id);
+    const dM1  = getData(m1,  cat.id);
+    const dM2  = getData(m2,  cat.id);
+    const dY1  = getData(y1,  cat.id);
+    const dY2  = getData(y2,  cat.id);
+    const curr = dRef ? dRef.t : 0;
+    const compl = dRef && dRef.t ? (dRef.d / dRef.t * 100).toFixed(1) + " %" : "—";
+
+    const rows = [
+      { label: `vs ${fmtMonth(m1)} (−1 mois)`,  d: dM1 },
+      { label: `vs ${fmtMonth(m2)} (−2 mois)`,  d: dM2 },
+      { label: `vs ${fmtMonth(y1)} (−1 an)`,    d: dY1 },
+      { label: `vs ${fmtMonth(y2)} (−2 ans)`,   d: dY2 },
+    ].map(({ label, d }) => `
+      <div class="kpi-comp-row">
+        <span class="kpi-comp-label">${label}</span>
+        ${trendBadge(trendPct(curr, d ? d.t : null))}
+        <span class="kpi-comp-abs">${d ? fmt(d.t) : "—"}</span>
+      </div>`).join("");
+
+    return `
+      <div class="kpi-card" style="--cat-color:${cat.color}">
+        <div class="kpi-cat-header">
+          <span class="kpi-icon">${cat.icon}</span>
+          <span class="kpi-cat-label">${cat.label}</span>
+        </div>
+        <div class="kpi-main">${fmt(curr)}</div>
+        <div class="kpi-sub-label">requêtes — ${fmtMonth(ref)}</div>
+        <div class="kpi-comparisons">${rows}</div>
+        <div class="kpi-completion">Complétion : <strong>${compl}</strong></div>
+      </div>`;
+  }).join("");
+}
+
+// ── Timeline chart ────────────────────────────────────────────────────────────
+let timelineIndexed = false;
+function buildTimeline() {
+  if (charts.timeline) charts.timeline.destroy();
+  const last24 = PROPRETE_MONTHS.slice(-24);
+  const datasets = PROPRETE_CATS.map(cat => {
+    const raw = last24.map(m => {
+      const d = getData(m, cat.id);
+      return d ? d.t : 0;
+    });
+    const base = raw.find(v => v > 0) || 1;
+    const data = timelineIndexed ? raw.map(v => +(v / base * 100).toFixed(1)) : raw;
+    return {
+      label: cat.label,
+      data,
+      borderColor: cat.color,
+      backgroundColor: cat.color + "18",
+      borderWidth: 2.5,
+      pointRadius: 2,
+      pointHoverRadius: 6,
+      pointHoverBackgroundColor: "#fff",
+      pointHoverBorderWidth: 2,
+      tension: .35,
+      fill: false,
+    };
+  });
+
+  charts.timeline = new Chart(document.getElementById("chart-timeline"), {
+    type: "line",
+    data: { labels: last24.map(fmtMonth), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } },
+        tooltip: { callbacks: {
+          title: ([ctx]) => ctx.label,
+          label: ctx => ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)}${timelineIndexed ? " (indice)" : ""}`,
+        }},
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 35 } },
+        y: {
+          grid: { color: "#f0f4f8" }, beginAtZero: false,
+          title: { display: true, text: timelineIndexed ? "Indice (base 100 = 1er mois)" : "Nombre de requêtes", font: { size: 11 } },
+        },
+      },
+    },
+  });
+}
+
+// ── Period comparison chart ───────────────────────────────────────────────────
+function buildComparison(ref, m1, m2, y1, y2) {
+  if (charts.comparison) charts.comparison.destroy();
+  const periods = [
+    { key: y2, label: `${fmtMonth(y2)}\n(−2 ans)` },
+    { key: y1, label: `${fmtMonth(y1)}\n(−1 an)` },
+    { key: m2, label: `${fmtMonth(m2)}\n(−2 mois)` },
+    { key: m1, label: `${fmtMonth(m1)}\n(−1 mois)` },
+    { key: ref, label: `${fmtMonth(ref)}\n(actuel)` },
+  ];
+
+  const datasets = PROPRETE_CATS.map((cat, ci) => ({
+    label: cat.label,
+    data: periods.map(p => {
+      const d = getData(p.key, cat.id);
+      return d ? d.t : 0;
+    }),
+    backgroundColor: periods.map((_, pi) => {
+      // darken the most recent bar
+      const opacity = 0.45 + pi * 0.14;
+      return cat.color + Math.round(opacity * 255).toString(16).padStart(2, "0");
+    }),
+    borderColor: cat.color,
+    borderWidth: 1,
+    borderRadius: 4,
+  }));
+
+  charts.comparison = new Chart(document.getElementById("chart-comparison"), {
+    type: "bar",
+    data: { labels: periods.map(p => p.label), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, padding: 14 } },
+        tooltip: { callbacks: {
+          title: ([ctx]) => ctx.label.replace("\n", " "),
+          label: ctx => ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)} req.`,
+        }},
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+// ── Completion rate chart ─────────────────────────────────────────────────────
+function buildCompletion() {
+  if (charts.completion) charts.completion.destroy();
+  const last24 = PROPRETE_MONTHS.slice(-24);
+  const datasets = PROPRETE_CATS.map(cat => {
+    const data = last24.map(m => {
+      const d = getData(m, cat.id);
+      if (!d || !d.t) return null;
+      return +(d.d / d.t * 100).toFixed(1);
+    });
+    return {
+      label: cat.label,
+      data,
+      borderColor: cat.color,
+      backgroundColor: cat.color + "15",
+      borderWidth: 2,
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      tension: .35,
+      spanGaps: true,
+    };
+  });
+
+  charts.completion = new Chart(document.getElementById("chart-completion"), {
+    type: "line",
+    data: { labels: last24.map(fmtMonth), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } },
+        tooltip: { callbacks: {
+          title: ([ctx]) => ctx.label,
+          label: ctx => ctx.parsed.y != null ? ` ${ctx.dataset.label} : ${ctx.parsed.y} %` : "",
+        }},
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 35 } },
+        y: { grid: { color: "#f0f4f8" }, min: 80, max: 100, ticks: { callback: v => v + " %" } },
+      },
+    },
+  });
+}
+
+// ── Period banner ─────────────────────────────────────────────────────────────
+function buildBanner(ref, m1, m2, y1, y2) {
+  document.getElementById("pb-ref").innerHTML = `Réf : <strong>${fmtMonth(ref)}</strong>`;
+  document.getElementById("pb-m1").innerHTML  = `vs <strong>${fmtMonth(m1)}</strong>`;
+  document.getElementById("pb-m2").innerHTML  = `vs <strong>${fmtMonth(m2)}</strong>`;
+  document.getElementById("pb-y1").innerHTML  = `vs <strong>${fmtMonth(y1)}</strong> (−1 an)`;
+  document.getElementById("pb-y2").innerHTML  = `vs <strong>${fmtMonth(y2)}</strong> (−2 ans)`;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  const loadingEl = document.getElementById("loading");
+  try {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "proprete_data.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("proprete_data.js introuvable"));
+      document.head.appendChild(s);
+    });
+
+    const ref = PROPRETE_REF_MONTH;
+    const m1  = offsetMonth(ref, -1);
+    const m2  = offsetMonth(ref, -2);
+    const y1  = offsetMonth(ref, -12);
+    const y2  = offsetMonth(ref, -24);
+
+    buildBanner(ref, m1, m2, y1, y2);
+    buildKpiCards(ref, m1, m2, y1, y2);
+    buildTimeline();
+    buildComparison(ref, m1, m2, y1, y2);
+    buildCompletion();
+
+    // Toggle absolu / indexé
+    document.getElementById("btn-abs").addEventListener("click", () => {
+      timelineIndexed = false;
+      document.getElementById("btn-abs").classList.add("active");
+      document.getElementById("btn-idx").classList.remove("active");
+      buildTimeline();
+    });
+    document.getElementById("btn-idx").addEventListener("click", () => {
+      timelineIndexed = true;
+      document.getElementById("btn-idx").classList.add("active");
+      document.getElementById("btn-abs").classList.remove("active");
+      buildTimeline();
+    });
+
+    loadingEl.style.display = "none";
+  } catch (e) {
+    loadingEl.innerHTML = `
+      <div style="text-align:center;color:#64748b;padding:2rem">
+        <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
+        <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
+        <div style="font-size:.85rem">${e.message}</div>
+      </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
