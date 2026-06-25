@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bilan annuel — Le Plateau-Mont-Royal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #1a4f8a;
+      --blue-lt: #2e76c8;
+      --green:   #27ae60;
+      --red:     #c0392b;
+      --orange:  #e67e22;
+      --purple:  #8e44ad;
+      --teal:    #16a085;
+      --bg:      #f4f6fa;
+      --card:    #ffffff;
+      --border:  #e2e8f0;
+      --text:    #1e293b;
+      --text-lt: #64748b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--blue); color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    header .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -.5px; }
+    header .logo span { color: #7ec8f7; }
+    header .subtitle { font-size: .83rem; opacity: .75; margin-left: auto; }
+
+    /* ── Tabs ───────────────────────────────────────────────── */
+    .tabs {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; gap: 0;
+    }
+    .tab {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .7rem 1.1rem;
+      font-size: .85rem; font-weight: 500;
+      color: var(--text-lt); text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+      transition: all .15s; white-space: nowrap;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+
+    /* ── Main ───────────────────────────────────────────────── */
+    main { padding: 1.5rem 1.5rem 4rem; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Period banner ──────────────────────────────────────── */
+    .period-banner {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 10px; padding: .85rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .period-banner .period-title { font-weight: 700; font-size: .9rem; color: var(--blue); }
+    .period-badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 2rem; padding: .22rem .7rem;
+      font-size: .8rem; color: var(--text-lt); white-space: nowrap;
+    }
+    .period-badge strong { color: var(--text); }
+    .period-partial { font-size: .75rem; color: var(--text-lt); opacity: .8; margin-left: auto; }
+
+    /* ── Section titles ─────────────────────────────────────── */
+    .section-title {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--text-lt); margin: 1.5rem 0 .85rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── KPI cards ──────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-top: 3px solid var(--cat-color, var(--blue));
+      border-radius: 12px; padding: 1.1rem 1.25rem;
+    }
+    .kpi-cat-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; }
+    .kpi-icon { font-size: 1.3rem; line-height: 1; }
+    .kpi-cat-label {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--cat-color, var(--blue));
+    }
+    .kpi-main { font-size: 2rem; font-weight: 700; line-height: 1; color: var(--text); margin-bottom: .15rem; }
+    .kpi-sub-label { font-size: .75rem; color: var(--text-lt); margin-bottom: .7rem; }
+
+    .kpi-comparisons { display: flex; flex-direction: column; gap: .3rem; }
+    .kpi-comp-row {
+      display: grid; grid-template-columns: 1fr auto auto;
+      align-items: center; gap: .5rem;
+      font-size: .78rem; padding: .25rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .kpi-comp-row:last-child { border-bottom: none; }
+    .kpi-comp-label { color: var(--text-lt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kpi-comp-abs { color: var(--text-lt); font-size: .73rem; white-space: nowrap; }
+
+    .trend {
+      display: inline-flex; align-items: center; gap: .2rem;
+      padding: .15rem .45rem; border-radius: 2rem;
+      font-size: .75rem; font-weight: 600; white-space: nowrap;
+    }
+    .trend.better  { background: #d1fae5; color: #065f46; }
+    .trend.worse   { background: #fee2e2; color: #7f1d1d; }
+    .trend.neutral { background: var(--bg); color: var(--text-lt); }
+
+    /* ── Chart section ──────────────────────────────────────── */
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.4rem;
+    }
+    .chart-card h3 {
+      font-size: .78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--text-lt); margin-bottom: .85rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .5rem;
+    }
+    .chart-wrap { position: relative; }
+    .chart-wrap.tall   { height: 320px; }
+    .chart-wrap.medium { height: 270px; }
+    .chart-wrap.short  { height: 220px; }
+
+    .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ── Mover lists (no chart, text rows) ──────────────────── */
+    .mover-note { font-size: .73rem; color: var(--text-lt); margin-top: .7rem; opacity: .8; }
+    .mover-empty { font-size: .82rem; color: var(--text-lt); padding: .5rem 0; }
+
+    /* ── Loading ────────────────────────────────────────────── */
+    #loading {
+      position: fixed; inset: 0; background: rgba(244,246,250,.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem; z-index: 999; font-size: .93rem; color: var(--text-lt);
+    }
+    .spinner {
+      width: 34px; height: 34px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Mobile ─────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      main { padding: .9rem .9rem 3rem; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .chart-grid-2 { grid-template-columns: 1fr; }
+      .chart-wrap.tall   { height: 250px; }
+      .chart-wrap.medium { height: 210px; }
+      .chart-wrap.short  { height: 190px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div>Chargement des données…</div>
+
+<header>
+  <div class="logo">Requêtes <span>311</span></div>
+  <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
+</header>
+
+<nav class="tabs">
+  <a class="tab" href="index.html">Vue d'ensemble</a>
+  <a class="tab" href="proprete.html">🧹 Propreté</a>
+  <a class="tab active">📅 Bilan annuel</a>
+</nav>
+
+<main>
+  <!-- Period banner -->
+  <div class="period-banner" id="period-banner">
+    <span class="period-title">Bilan</span>
+    <span class="period-badge" id="pb-cur"></span>
+    <span class="period-badge" id="pb-ly"></span>
+    <span class="period-partial">* Le mois en cours peut être incomplet</span>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="section-title">Indicateurs clés</div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <!-- Timeline -->
+  <div class="section-title" id="timeline-title">Évolution mensuelle</div>
+  <div class="chart-card">
+    <h3>Requêtes par mois — année en cours vs année précédente</h3>
+    <div class="chart-wrap tall"><canvas id="chart-timeline"></canvas></div>
+  </div>
+
+  <!-- Répartition -->
+  <div class="section-title">Répartition</div>
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <h3>Par type de requête</h3>
+      <div class="chart-wrap medium"><canvas id="chart-nature"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Canal de contact — année en cours vs année précédente</h3>
+      <div class="chart-wrap medium"><canvas id="chart-prov"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Activités -->
+  <div class="section-title">Activités</div>
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <h3>Top 12 activités</h3>
+      <div class="chart-wrap tall"><canvas id="chart-top-acti"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3 id="movers-title">Plus fortes variations</h3>
+      <div style="display:flex;flex-direction:column;gap:1.1rem">
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--red);margin-bottom:.3rem">📈 En hausse</div>
+          <div class="kpi-comparisons" id="movers-up"></div>
+        </div>
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--green);margin-bottom:.3rem">📉 En baisse</div>
+          <div class="kpi-comparisons" id="movers-down"></div>
+        </div>
+      </div>
+      <div class="mover-note">* activités avec au moins 5 requêtes sur la période courante ou précédente</div>
+    </div>
+  </div>
+
+  <!-- Habitudes -->
+  <div class="section-title">Habitudes — année en cours</div>
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <h3>Par jour de la semaine</h3>
+      <div class="chart-wrap short"><canvas id="chart-weekday"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Par heure de la journée</h3>
+      <div class="chart-wrap short"><canvas id="chart-hour"></canvas></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const MONTHS_FR = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+function fmt(n) { return n == null ? "—" : Number(n).toLocaleString("fr-CA"); }
+
+function trendBadge(pct, mode = "down-good") {
+  if (pct === null) return `<span class="trend neutral">—</span>`;
+  if (pct === Infinity) return `<span class="trend worse">🆕 nouveau</span>`;
+  const sign  = pct >= 0 ? "+" : "";
+  const arrow = pct > 1 ? "↑" : pct < -1 ? "↓" : "→";
+  let cls = "neutral";
+  if (mode !== "neutral" && Math.abs(pct) > 1) {
+    const up   = pct > 0;
+    const good = mode === "up-good" ? up : !up;
+    cls = good ? "better" : "worse";
+  }
+  return `<span class="trend ${cls}">${arrow} ${sign}${pct.toFixed(1)}&thinsp;%</span>`;
+}
+function pct(curr, prevVal) {
+  if (prevVal == null) return null;
+  if (prevVal === 0) return curr > 0 ? Infinity : null;
+  return (curr - prevVal) / prevVal * 100;
+}
+
+// ── Chart setup ───────────────────────────────────────────────────────────────
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.color = "#64748b";
+Object.assign(Chart.defaults.plugins.tooltip, {
+  backgroundColor: "rgba(15,23,42,0.88)",
+  titleColor: "#e2e8f0", bodyColor: "#94a3b8",
+  borderColor: "rgba(255,255,255,.08)", borderWidth: 1,
+  padding: 12, cornerRadius: 10, boxPadding: 5, usePointStyle: true,
+});
+const COLORS = [
+  "#2e76c8","#27ae60","#e67e22","#c0392b","#8e44ad",
+  "#16a085","#d35400","#f39c12","#7f8c8d","#1abc9c",
+  "#e74c3c","#9b59b6",
+];
+
+let charts = {};
+
+// ── Aggregation ───────────────────────────────────────────────────────────────
+function aggregate(monthSet) {
+  const byNature  = {};
+  const byStatus  = {};
+  const byProv    = new Int32Array(PROV_LABELS.length);
+  const byActi    = new Int32Array(ACTIVITIES.length);
+  const byWeekday = new Int32Array(7);
+  const byHour    = new Int32Array(24);
+  const byMonth   = {};
+  let total = 0, terminees = 0, urgentes = 0;
+  const TERM_IDX = STATUSES.indexOf("Terminée");
+  const URG_IDX  = STATUSES.indexOf("Urgente");
+
+  for (const row of ROWS) {
+    const mi = row[0], ni = row[1], ai = row[2], si = row[3],
+          prov = row[4], wd = row[5], h = row[6];
+    if (!monthSet.has(mi)) continue;
+
+    total++;
+    const m = MONTHS[mi];
+    byMonth[m] = (byMonth[m] || 0) + 1;
+    if (ni >= 0) { const n = NATURES[ni]; byNature[n] = (byNature[n] || 0) + 1; }
+    if (si >= 0) {
+      const s = STATUSES[si]; byStatus[s] = (byStatus[s] || 0) + 1;
+      if (si === TERM_IDX) terminees++;
+      if (si === URG_IDX) urgentes++;
+    }
+    byWeekday[wd]++;
+    byHour[h]++;
+    for (let b = 0; b < PROV_LABELS.length; b++) if (prov & (1 << b)) byProv[b]++;
+    if (ai >= 0) byActi[ai]++;
+  }
+
+  return {
+    total, terminees, urgentes,
+    byNature, byStatus, byMonth,
+    byProv: Array.from(byProv),
+    byActi: Array.from(byActi),
+    byWeekday: Array.from(byWeekday),
+    byHour: Array.from(byHour),
+  };
+}
+
+function monthIdxSet(monthsArr) {
+  const set = new Set();
+  monthsArr.forEach(m => { const i = MONTHS.indexOf(m); if (i >= 0) set.add(i); });
+  return set;
+}
+
+// ── Build period banner ────────────────────────────────────────────────────────
+function buildBanner(curYear, lyYear, firstLabel, lastLabel) {
+  document.getElementById("pb-cur").innerHTML =
+    `<strong>${firstLabel} – ${lastLabel} ${curYear}</strong>`;
+  document.getElementById("pb-ly").innerHTML =
+    `vs <strong>${firstLabel} – ${lastLabel} ${lyYear}</strong>`;
+}
+
+// ── Build KPI cards ────────────────────────────────────────────────────────────
+function buildKpiCards(cur, ly, lyYear) {
+  const completionCur = cur.total ? +(cur.terminees / cur.total * 100).toFixed(1) : 0;
+  const completionLy  = ly.total  ? +(ly.terminees  / ly.total  * 100).toFixed(1) : null;
+
+  const provLabels = PROV_LABELS.map((label, i) => ({ label, i, c: cur.byProv[i] }));
+  const topProv = provLabels.slice().sort((a, b) => b.c - a.c)[0];
+  const topProvSharCur = cur.total ? topProv.c / cur.total * 100 : 0;
+  const topProvShareLy = ly.total  ? ly.byProv[topProv.i] / ly.total * 100 : null;
+
+  const actiEntries = ACTIVITIES.map((label, i) => ({ label, i, c: cur.byActi[i] }));
+  const topActi = actiEntries.slice().sort((a, b) => b.c - a.c)[0];
+
+  const cards = [
+    {
+      color: "var(--blue)", icon: "📊", label: "Total requêtes",
+      main: fmt(cur.total), sub: `${lyYear} : ${fmt(ly.total)}`,
+      trend: trendBadge(pct(cur.total, ly.total), "neutral"),
+    },
+    {
+      color: "var(--green)", icon: "✅", label: "Taux de complétion",
+      main: completionCur + " %", sub: `${lyYear} : ${ly.total ? completionLy + " %" : "—"}`,
+      trend: trendBadge(pct(completionCur, completionLy), "up-good"),
+    },
+    {
+      color: "var(--red)", icon: "🚨", label: "Requêtes urgentes",
+      main: fmt(cur.urgentes), sub: `${lyYear} : ${fmt(ly.urgentes)}`,
+      trend: trendBadge(pct(cur.urgentes, ly.urgentes), "down-good"),
+    },
+    {
+      color: "var(--orange)", icon: "⚠️", label: "Plaintes",
+      main: fmt(cur.byNature["Plainte"] || 0), sub: `${lyYear} : ${fmt(ly.byNature["Plainte"] || 0)}`,
+      trend: trendBadge(pct(cur.byNature["Plainte"] || 0, ly.byNature["Plainte"] || 0), "down-good"),
+    },
+    {
+      color: "var(--purple)", icon: "📞", label: "Canal principal",
+      main: topProv.label, mainIsText: true, sub: `${topProvSharCur.toFixed(1)} % des requêtes`,
+      trend: trendBadge(pct(topProvSharCur, topProvShareLy), "neutral"),
+    },
+    {
+      color: "var(--teal)", icon: "🏆", label: "Activité la plus fréquente",
+      main: fmt(topActi.c), sub: topActi.label,
+      trend: trendBadge(pct(topActi.c, ly.byActi[topActi.i]), "neutral"),
+    },
+  ];
+
+  document.getElementById("kpi-grid").innerHTML = cards.map(c => `
+    <div class="kpi-card" style="--cat-color:${c.color}">
+      <div class="kpi-cat-header">
+        <span class="kpi-icon">${c.icon}</span>
+        <span class="kpi-cat-label">${c.label}</span>
+      </div>
+      <div class="kpi-main" style="${c.mainIsText ? "font-size:1.3rem" : ""}">${c.main}</div>
+      <div class="kpi-sub-label">${c.sub}</div>
+      <div class="kpi-comparisons"><div class="kpi-comp-row" style="border-bottom:none">
+        <span class="kpi-comp-label">vs ${lyYear}</span>${c.trend}<span></span>
+      </div></div>
+    </div>`).join("");
+}
+
+// ── Timeline: année en cours vs année précédente ──────────────────────────────
+function buildTimeline(curYear, lyYear, cur, lyFull) {
+  if (charts.timeline) charts.timeline.destroy();
+
+  const curByMoY = Array(12).fill(null);
+  Object.entries(cur.byMonth).forEach(([m, c]) => { curByMoY[+m.slice(5, 7) - 1] = c; });
+
+  const lyByMoY = Array(12).fill(null);
+  Object.entries(lyFull.byMonth).forEach(([m, c]) => { lyByMoY[+m.slice(5, 7) - 1] = c; });
+
+  charts.timeline = new Chart(document.getElementById("chart-timeline"), {
+    type: "line",
+    data: {
+      labels: MONTHS_FR,
+      datasets: [
+        {
+          label: String(curYear), data: curByMoY,
+          borderColor: "#2e76c8", backgroundColor: "rgba(46,118,200,.12)",
+          borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 6,
+          tension: .35, fill: true, spanGaps: false,
+        },
+        {
+          label: String(lyYear), data: lyByMoY,
+          borderColor: "#94a3b8", backgroundColor: "transparent",
+          borderWidth: 2, borderDash: [6, 4], pointRadius: 2, pointHoverRadius: 5,
+          tension: .35, fill: false, spanGaps: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y != null ? ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)} requêtes` : "" } },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+// ── Nature donut ───────────────────────────────────────────────────────────────
+function buildNature(cur) {
+  if (charts.nature) charts.nature.destroy();
+  const labels = Object.keys(cur.byNature);
+  const data   = Object.values(cur.byNature);
+  const colorMap = { "Requete": "#2e76c8", "Plainte": "#c0392b", "Commentaire": "#27ae60" };
+  charts.nature = new Chart(document.getElementById("chart-nature"), {
+    type: "doughnut",
+    data: { labels, datasets: [{ data, backgroundColor: labels.map(l => colorMap[l] || "#7f8c8d"), borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom" },
+        tooltip: { callbacks: { label: ctx => {
+          const tot = data.reduce((a, b) => a + b, 0);
+          return ` ${ctx.label}: ${fmt(ctx.parsed)} (${(ctx.parsed / tot * 100).toFixed(1)} %)`;
+        }}},
+      },
+    },
+  });
+}
+
+// ── Canal comparatif ────────────────────────────────────────────────────────────
+function buildProv(cur, ly, curYear, lyYear) {
+  if (charts.prov) charts.prov.destroy();
+  charts.prov = new Chart(document.getElementById("chart-prov"), {
+    type: "bar",
+    data: {
+      labels: PROV_LABELS,
+      datasets: [
+        { label: String(curYear), data: cur.byProv, backgroundColor: "#2e76c8", borderRadius: 4 },
+        { label: String(lyYear),  data: ly.byProv,  backgroundColor: "#cbd5e1", borderRadius: 4 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } },
+        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+// ── Top activités ───────────────────────────────────────────────────────────────
+function buildTopActi(cur) {
+  if (charts.topActi) charts.topActi.destroy();
+  const entries = ACTIVITIES.map((label, i) => [label, cur.byActi[i]])
+    .filter(([, c]) => c > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12);
+  const labels = entries.map(e => e[0]);
+  const data   = entries.map(e => e[1]);
+  charts.topActi = new Chart(document.getElementById("chart-top-acti"), {
+    type: "bar",
+    data: { labels, datasets: [{ data, backgroundColor: labels.map((_, i) => COLORS[i % COLORS.length]), borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: "y",
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+// ── Movers (hausses / baisses) ──────────────────────────────────────────────────
+function moverRow(it) {
+  return `
+    <div class="kpi-comp-row">
+      <span class="kpi-comp-label" title="${it.label}">${it.label}</span>
+      ${trendBadge(it.pct, "down-good")}
+      <span class="kpi-comp-abs">${fmt(it.cur)} / ${fmt(it.ly)}</span>
+    </div>`;
+}
+
+function buildMovers(cur, ly) {
+  const items = [];
+  for (let i = 0; i < ACTIVITIES.length; i++) {
+    const c = cur.byActi[i], l = ly.byActi[i];
+    if (c < 5 && l < 5) continue;
+    const p = pct(c, l);
+    if (p === null) continue;
+    items.push({ label: ACTIVITIES[i], cur: c, ly: l, pct: p });
+  }
+  const risers  = items.filter(it => it.pct > 0).sort((a, b) => (b.pct === Infinity ? 1 : b.pct) - (a.pct === Infinity ? 1 : a.pct)).slice(0, 6);
+  const fallers = items.filter(it => it.pct < 0).sort((a, b) => a.pct - b.pct).slice(0, 6);
+
+  document.getElementById("movers-up").innerHTML =
+    risers.length ? risers.map(moverRow).join("") : `<div class="mover-empty">Aucune hausse notable</div>`;
+  document.getElementById("movers-down").innerHTML =
+    fallers.length ? fallers.map(moverRow).join("") : `<div class="mover-empty">Aucune baisse notable</div>`;
+}
+
+// ── Habitudes (jour / heure) ────────────────────────────────────────────────────
+function buildHabits(cur) {
+  if (charts.weekday) charts.weekday.destroy();
+  if (charts.hour) charts.hour.destroy();
+
+  charts.weekday = new Chart(document.getElementById("chart-weekday"), {
+    type: "bar",
+    data: { labels: WEEKDAYS, datasets: [{ data: cur.byWeekday, borderRadius: 4,
+      backgroundColor: cur.byWeekday.map((_, i) => i >= 5 ? "#e67e22" : "#2e76c8"),
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+    },
+  });
+
+  const hourLabels = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, "0")}h`);
+  const maxH = Math.max(...cur.byHour, 1);
+  charts.hour = new Chart(document.getElementById("chart-hour"), {
+    type: "bar",
+    data: { labels: hourLabels, datasets: [{ data: cur.byHour, borderRadius: 2,
+      backgroundColor: cur.byHour.map(v => `rgba(46,118,200,${.25 + v / maxH * .75})`),
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: true, maxTicksLimit: 12 } },
+        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error(`Fichier ${src} introuvable`));
+    document.head.appendChild(s);
+  });
+}
+async function fetchJSON(url) {
+  const res = await fetch(url, { cache: "no-cache" });
+  if (!res.ok) throw new Error(`${url} : HTTP ${res.status}`);
+  return res.json();
+}
+async function withRetry(fn, attempts = 2) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try { return await fn(); } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
+}
+
+async function init() {
+  const loadingEl = document.getElementById("loading");
+  try {
+    await withRetry(() => loadScript("data.js"));
+    window.ROWS = await withRetry(() => fetchJSON("rows.json"));
+
+    const lastMonth = MONTHS[MONTHS.length - 1];
+    const curYear = +lastMonth.slice(0, 4);
+    const curMonthNum = +lastMonth.slice(5, 7);
+    const lyYear = curYear - 1;
+
+    const curMonths    = MONTHS.filter(m => m.startsWith(curYear + "-"));
+    const lyYtdMonths  = curMonths.map(m => lyYear + m.slice(4)).filter(m => MONTHS.includes(m));
+    const lyFullMonths = MONTHS.filter(m => m.startsWith(lyYear + "-"));
+
+    const cur    = aggregate(monthIdxSet(curMonths));
+    const ly     = aggregate(monthIdxSet(lyYtdMonths));
+    const lyFull = aggregate(monthIdxSet(lyFullMonths));
+
+    buildBanner(curYear, lyYear, MONTHS_FR[0], MONTHS_FR[curMonthNum - 1]);
+    buildKpiCards(cur, ly, lyYear);
+    buildTimeline(curYear, lyYear, cur, lyFull);
+    buildNature(cur);
+    buildProv(cur, ly, curYear, lyYear);
+    buildTopActi(cur);
+    buildMovers(cur, ly);
+    buildHabits(cur);
+
+    loadingEl.style.display = "none";
+  } catch (e) {
+    loadingEl.innerHTML = `
+      <div style="text-align:center;color:#64748b;padding:2rem">
+        <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
+        <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
+        <div style="font-size:.85rem">${e.message}</div>
+      </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
