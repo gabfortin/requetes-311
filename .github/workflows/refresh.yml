@@ -1,0 +1,54 @@
+name: Refresh données 311
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # 1er de chaque mois à 06h00 UTC
+  workflow_dispatch:       # déclenchement manuel possible
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Découvrir l'URL du CSV (CKAN)
+        id: ckan
+        run: |
+          CSV_URL=$(curl -fsSL "https://donnees.montreal.ca/api/3/action/package_show?id=requete-311" \
+            | jq -r '.result.resources[] | select(.name | test("2022"; "i")) | .url' | head -1)
+          if [ -z "$CSV_URL" ]; then
+            echo "ERREUR: URL du CSV introuvable" >&2
+            exit 1
+          fi
+          echo "url=$CSV_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Télécharger le CSV
+        run: curl -fL --progress-bar -o requetes311.csv "${{ steps.ckan.outputs.url }}"
+
+      - name: Générer les fichiers de données
+        run: python3 generate.py
+
+      - name: Commit et push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data.js docs/rows.json docs/proprete_data.js
+          if git diff --staged --quiet; then
+            echo "Aucun changement — rien à pousser."
+          else
+            git commit -m "chore: mise à jour automatique des données 311 – $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
