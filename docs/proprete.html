@@ -197,6 +197,144 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Notification bell ──────────────────────────────────── */
+    .notif-btn {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: #fff; padding: .38rem .8rem; border-radius: 2rem;
+      font-size: .82rem; cursor: pointer; position: relative;
+      display: inline-flex; align-items: center; gap: .35rem;
+      transition: background .15s; white-space: nowrap;
+    }
+    .notif-btn:hover { background: rgba(255,255,255,.28); }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #f87171;
+      position: absolute; top: 3px; right: 5px; display: none;
+    }
+    .notif-btn.has-alerts .notif-dot { display: block; }
+
+    /* ── Alert banners ──────────────────────────────────────── */
+    .alert-banners { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+    .alert-banner {
+      background: #fef2f2; border: 1px solid #fecaca;
+      border-left: 4px solid var(--cat-color, #c0392b);
+      border-radius: 8px; padding: .6rem 1rem;
+      display: flex; align-items: center; gap: .65rem; font-size: .84rem;
+    }
+    .alert-banner .alert-text { flex: 1; }
+    .alert-close {
+      background: none; border: none; cursor: pointer;
+      color: #94a3b8; font-size: 1rem; line-height: 1; padding: .1rem;
+    }
+
+    /* ── Modal overlay ──────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card); border-radius: 16px;
+      width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.3rem; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--card); z-index: 1;
+      border-radius: 16px 16px 0 0;
+    }
+    .modal-header h2 { font-size: .98rem; font-weight: 700; }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.25rem; color: var(--text-lt); line-height: 1;
+    }
+    .modal-body { padding: 1rem 1.3rem; display: flex; flex-direction: column; gap: .85rem; }
+    .modal-footer {
+      padding: .85rem 1.3rem; border-top: 1px solid var(--border);
+      display: flex; gap: .6rem; justify-content: flex-end;
+      position: sticky; bottom: 0; background: var(--card);
+      border-radius: 0 0 16px 16px;
+    }
+
+    /* ── Alert card (per category) ──────────────────────────── */
+    .alert-card {
+      border: 1.5px solid var(--border); border-radius: 10px;
+      border-top: 3px solid var(--cat-color, var(--blue)); overflow: hidden;
+    }
+    .alert-card-header {
+      display: flex; align-items: center; gap: .55rem;
+      padding: .65rem .9rem; background: var(--bg);
+    }
+    .alert-cat-icon { font-size: 1.1rem; line-height: 1; }
+    .alert-cat-label {
+      font-size: .77rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--cat-color); flex: 1;
+    }
+    .alert-cur-val {
+      font-size: .75rem; color: var(--text-lt);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 2rem; padding: .13rem .55rem;
+    }
+    .alert-card-body {
+      padding: .8rem .9rem; display: flex; flex-direction: column; gap: .6rem;
+      transition: opacity .2s;
+    }
+    .alert-card-body.disabled { opacity: .4; pointer-events: none; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+    .alert-field label {
+      display: block; font-size: .7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--text-lt); margin-bottom: .28rem;
+    }
+    .alert-field select, .alert-field input[type="number"] {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 7px;
+      padding: .38rem .6rem; font-size: .82rem; color: var(--text);
+      background: var(--card); outline: none;
+    }
+    .alert-field select:focus, .alert-field input:focus { border-color: var(--blue-lt); }
+
+    /* ── Toggle switch ──────────────────────────────────────── */
+    .toggle-sw {
+      position: relative; width: 38px; height: 22px; flex-shrink: 0;
+      display: inline-block;
+    }
+    .toggle-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 22px;
+      background: #cbd5e1; cursor: pointer; transition: background .2s;
+    }
+    .toggle-track::after {
+      content: ""; position: absolute;
+      width: 16px; height: 16px; border-radius: 50%; background: #fff;
+      top: 3px; left: 3px; transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    }
+    .toggle-sw input:checked ~ .toggle-track { background: var(--cat-color, var(--blue)); }
+    .toggle-sw input:checked ~ .toggle-track::after { transform: translateX(16px); }
+
+    /* ── Buttons ────────────────────────────────────────────── */
+    .btn {
+      border: none; border-radius: 8px; padding: .48rem 1.05rem;
+      font-size: .84rem; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: var(--blue-lt); }
+    .btn-ghost {
+      background: var(--bg); color: var(--text-lt); border: 1.5px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-test {
+      background: none; border: 1.5px solid var(--border);
+      color: var(--text-lt); border-radius: 8px; padding: .35rem .8rem;
+      font-size: .8rem; cursor: pointer; margin-right: auto;
+    }
+    .btn-test:hover { color: var(--text); border-color: #94a3b8; }
+    .notif-note {
+      font-size: .75rem; color: var(--text-lt); padding: .5rem .9rem;
+      background: var(--bg); border-radius: 7px; line-height: 1.5;
+    }
+
     /* ── Mobile ─────────────────────────────────────────────── */
     @media (max-width: 700px) {
       main { padding: .9rem .9rem 3rem; }
@@ -214,6 +352,7 @@
 <header>
   <div class="logo">Requêtes <span>311</span></div>
   <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
+  <button class="notif-btn" id="notif-btn">🔔 Alertes<span class="notif-dot"></span></button>
 </header>
 
 <nav class="tabs">
@@ -223,6 +362,9 @@
 </nav>
 
 <main>
+  <!-- Alert banners (populated by JS when thresholds are crossed) -->
+  <div class="alert-banners" id="alert-banners"></div>
+
   <!-- Period banner -->
   <div class="period-banner" id="period-banner">
     <span class="period-title">Période de référence</span>
@@ -265,6 +407,22 @@
     <div class="chart-wrap medium"><canvas id="chart-completion"></canvas></div>
   </div>
 </main>
+
+<!-- ── Notification settings modal ───────────────────────────────────────── -->
+<div class="modal-overlay" id="notif-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔔 Alertes de seuil</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"><!-- generated by JS --></div>
+    <div class="modal-footer">
+      <button class="btn-test btn" id="btn-test-notif">Tester une notif</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" id="btn-save-notif">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -504,6 +662,220 @@ function buildBanner(ref, m1, m2, y1, y2) {
   document.getElementById("pb-y2").innerHTML  = `vs <strong>${fmtMonth(y2)}</strong> (−2 ans)`;
 }
 
+// ── Notification system ───────────────────────────────────────────────────────
+
+const NOTIF_KEY  = "311_notif_v1";
+const COOLDOWN   = 23 * 60 * 60 * 1000;  // 23 h between repeat browser notifs
+
+const METRIC_LABELS = {
+  count:      "requêtes",
+  pct_m1:     "% vs mois préc.",
+  pct_y1:     "% vs an passé",
+  completion: "% complétion",
+};
+
+function defaultSettings() {
+  const s = {};
+  for (const cat of PROPRETE_CATS)
+    s[cat.id] = { enabled: false, metric: "count", direction: "above", threshold: 50, lastNotified: null };
+  return s;
+}
+
+function loadNotifSettings() {
+  try {
+    const raw = localStorage.getItem(NOTIF_KEY);
+    if (!raw) return defaultSettings();
+    const saved = JSON.parse(raw);
+    const d = defaultSettings();
+    for (const [k, v] of Object.entries(saved)) if (k in d) d[k] = { ...d[k], ...v };
+    return d;
+  } catch { return defaultSettings(); }
+}
+
+function saveNotifSettings(s) { localStorage.setItem(NOTIF_KEY, JSON.stringify(s)); }
+
+function getMetricValue(catId, metric, ref) {
+  const dRef = getData(ref, catId);
+  const curr = dRef ? dRef.t : 0;
+  if (metric === "count") return curr;
+  if (metric === "completion") return dRef && dRef.t ? dRef.d / dRef.t * 100 : null;
+  const cmp  = getData(offsetMonth(ref, metric === "pct_m1" ? -1 : -12), catId);
+  if (!cmp || !cmp.t) return null;
+  return (curr - cmp.t) / cmp.t * 100;
+}
+
+function fmtMetric(value, metric) {
+  if (value === null) return "—";
+  if (metric === "count") return Math.round(value).toLocaleString("fr-CA");
+  return (value >= 0 ? "+" : "") + value.toFixed(1) + " %";
+}
+
+// Check alerts on page load — shows banners and fires browser notifs
+function checkAlerts(ref) {
+  const settings = loadNotifSettings();
+  const now      = Date.now();
+  const container = document.getElementById("alert-banners");
+  container.innerHTML = "";
+  let anyActive = false;
+
+  for (const cat of PROPRETE_CATS) {
+    const s = settings[cat.id];
+    if (!s || !s.enabled) continue;
+    anyActive = true;
+
+    const value = getMetricValue(cat.id, s.metric, ref);
+    if (value === null) continue;
+
+    const triggered = s.direction === "above" ? value > s.threshold : value < s.threshold;
+    if (!triggered) continue;
+
+    const dir  = s.direction === "above" ? "supérieur" : "inférieur";
+    const vFmt = fmtMetric(value, s.metric);
+    const tFmt = fmtMetric(s.threshold, s.metric);
+
+    // In-page banner
+    const div = document.createElement("div");
+    div.className = "alert-banner";
+    div.style.setProperty("--cat-color", cat.color);
+    div.innerHTML = `
+      <span>${cat.icon}</span>
+      <span class="alert-text">
+        <strong>${cat.label}</strong> — ${vFmt} (${METRIC_LABELS[s.metric]}) est ${dir} au seuil de ${tFmt}
+      </span>
+      <button class="alert-close" onclick="this.closest('.alert-banner').remove()">✕</button>`;
+    container.appendChild(div);
+
+    // Browser notification (once per 23 h per category)
+    const lastMs = s.lastNotified ? new Date(s.lastNotified).getTime() : 0;
+    if (now - lastMs > COOLDOWN && typeof Notification !== "undefined" && Notification.permission === "granted") {
+      new Notification(`Seuil dépassé — ${cat.label}`, {
+        body: `${cat.icon} ${vFmt} (${METRIC_LABELS[s.metric]}) — ${dir} au seuil de ${tFmt}`,
+      });
+      settings[cat.id].lastNotified = new Date().toISOString();
+    }
+  }
+
+  saveNotifSettings(settings);
+  document.getElementById("notif-btn").classList.toggle("has-alerts", anyActive);
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+
+let _modalRef = null;
+
+function openModal(ref) {
+  _modalRef = ref;
+  const settings = loadNotifSettings();
+  const body = document.getElementById("modal-body");
+
+  // Notification permission notice
+  const permNote = typeof Notification === "undefined"
+    ? `<p class="notif-note">⚠️ Les notifications navigateur ne sont pas supportées sur cet appareil.</p>`
+    : Notification.permission === "denied"
+      ? `<p class="notif-note">🚫 Les notifications sont bloquées dans votre navigateur. Autorisez-les dans les réglages du site pour recevoir des alertes hors de la page.</p>`
+      : Notification.permission === "default"
+        ? `<p class="notif-note">💡 En enregistrant une alerte, votre navigateur vous demandera la permission d'envoyer des notifications.</p>`
+        : `<p class="notif-note">✅ Notifications navigateur autorisées.</p>`;
+
+  body.innerHTML = permNote + PROPRETE_CATS.map(cat => {
+    const s   = settings[cat.id];
+    const cur = fmtMetric(getMetricValue(cat.id, s.metric, ref), s.metric);
+    return `
+      <div class="alert-card" style="--cat-color:${cat.color}" data-cat="${cat.id}">
+        <div class="alert-card-header">
+          <span class="alert-cat-icon">${cat.icon}</span>
+          <span class="alert-cat-label">${cat.label}</span>
+          <span class="alert-cur-val" id="acv-${cat.id}">Actuel : ${cur}</span>
+          <label class="toggle-sw">
+            <input type="checkbox" class="cat-toggle" data-cat="${cat.id}" ${s.enabled ? "checked" : ""}>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="alert-card-body ${s.enabled ? "" : "disabled"}" id="acb-${cat.id}">
+          <div class="field-row">
+            <div class="alert-field">
+              <label>Indicateur</label>
+              <select class="f-metric" data-cat="${cat.id}">
+                <option value="count"      ${s.metric==="count"      ? "selected":""}>Nbre de requêtes</option>
+                <option value="pct_m1"     ${s.metric==="pct_m1"     ? "selected":""}>Var. % vs mois préc.</option>
+                <option value="pct_y1"     ${s.metric==="pct_y1"     ? "selected":""}>Var. % vs an passé</option>
+                <option value="completion" ${s.metric==="completion"  ? "selected":""}>% complétion</option>
+              </select>
+            </div>
+            <div class="alert-field">
+              <label>Condition</label>
+              <select class="f-direction" data-cat="${cat.id}">
+                <option value="above" ${s.direction==="above" ? "selected":""}>Supérieur à</option>
+                <option value="below" ${s.direction==="below" ? "selected":""}>Inférieur à</option>
+              </select>
+            </div>
+          </div>
+          <div class="alert-field">
+            <label>Seuil</label>
+            <input type="number" class="f-threshold" data-cat="${cat.id}"
+              value="${s.threshold}" min="0" step="1" placeholder="ex : 50">
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+
+  // Live preview: update "Actuel" when metric changes
+  body.querySelectorAll(".f-metric").forEach(sel => {
+    sel.addEventListener("change", () => {
+      const v = getMetricValue(sel.dataset.cat, sel.value, ref);
+      document.getElementById(`acv-${sel.dataset.cat}`).textContent = `Actuel : ${fmtMetric(v, sel.value)}`;
+    });
+  });
+
+  // Toggle enable/disable card body
+  body.querySelectorAll(".cat-toggle").forEach(chk => {
+    chk.addEventListener("change", () => {
+      document.getElementById(`acb-${chk.dataset.cat}`).classList.toggle("disabled", !chk.checked);
+    });
+  });
+
+  document.getElementById("notif-modal").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("notif-modal").classList.remove("open");
+}
+
+function saveModal() {
+  const settings = loadNotifSettings();
+  document.querySelectorAll(".alert-card").forEach(card => {
+    const id = card.dataset.cat;
+    settings[id] = {
+      ...settings[id],
+      enabled:   card.querySelector(".cat-toggle").checked,
+      metric:    card.querySelector(".f-metric").value,
+      direction: card.querySelector(".f-direction").value,
+      threshold: parseFloat(card.querySelector(".f-threshold").value) || 0,
+    };
+  });
+
+  const anyEnabled = Object.values(settings).some(s => s.enabled);
+  if (anyEnabled && typeof Notification !== "undefined" && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+
+  saveNotifSettings(settings);
+  closeModal();
+  if (_modalRef) checkAlerts(_modalRef);
+}
+
+function sendTestNotif() {
+  if (typeof Notification === "undefined") { alert("Notifications non supportées."); return; }
+  if (Notification.permission === "granted") {
+    new Notification("🔔 Test — Requêtes 311", { body: "Les alertes de seuil fonctionnent correctement." });
+  } else {
+    Notification.requestPermission().then(p => {
+      if (p === "granted")
+        new Notification("🔔 Test — Requêtes 311", { body: "Les alertes de seuil fonctionnent correctement." });
+    });
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   const loadingEl = document.getElementById("loading");
@@ -527,6 +899,12 @@ async function init() {
     buildTimeline();
     buildComparison(ref, m1, m2, y1, y2);
     buildCompletion();
+    checkAlerts(ref);
+
+    // Notification modal
+    document.getElementById("notif-btn").addEventListener("click", () => openModal(ref));
+    document.getElementById("btn-save-notif").addEventListener("click", saveModal);
+    document.getElementById("btn-test-notif").addEventListener("click", sendTestNotif);
 
     // Toggle absolu / indexé
     document.getElementById("btn-abs").addEventListener("click", () => {
