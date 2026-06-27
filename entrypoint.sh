@@ -23,8 +23,10 @@ cd "$WORKSPACE"
 git config user.name  "$GIT_USER_NAME"
 git config user.email "$GIT_USER_EMAIL"
 
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
 echo "==> Découverte de l'URL du CSV via l'API CKAN..."
-CKAN_JSON=$(curl -fsSL "https://donnees.montreal.ca/api/3/action/package_show?id=requete-311")
+CKAN_JSON=$(curl -fsSL -A "$USER_AGENT" "https://donnees.montreal.ca/api/3/action/package_show?id=requete-311")
 
 # Choisit la ressource dont le nom contient "2022" (CSV actif)
 CSV_URL=$(echo "$CKAN_JSON" \
@@ -37,7 +39,12 @@ if [ -z "$CSV_URL" ]; then
 fi
 
 echo "==> Téléchargement du CSV depuis ${CSV_URL}..."
-curl -fL --progress-bar -o requetes311.csv "$CSV_URL"
+curl -fL --retry 3 --retry-delay 5 --progress-bar \
+  -A "$USER_AGENT" \
+  -H "Accept: text/csv,application/csv,*/*" \
+  -H "Accept-Language: fr-CA,fr;q=0.9,en;q=0.8" \
+  -H "Referer: https://donnees.montreal.ca/dataset/requete-311" \
+  -o requetes311.csv "$CSV_URL"
 
 echo "==> Génération des fichiers de données..."
 python3 generate.py

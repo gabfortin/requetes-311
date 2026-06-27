@@ -27,7 +27,9 @@ jobs:
       - name: Découvrir l'URL du CSV (CKAN)
         id: ckan
         run: |
-          CSV_URL=$(curl -fsSL "https://donnees.montreal.ca/api/3/action/package_show?id=requete-311" \
+          CSV_URL=$(curl -fsSL \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" \
+            "https://donnees.montreal.ca/api/3/action/package_show?id=requete-311" \
             | jq -r '.result.resources[] | select(.name | test("2022"; "i")) | .url' | head -1)
           if [ -z "$CSV_URL" ]; then
             echo "ERREUR: URL du CSV introuvable" >&2
@@ -36,7 +38,13 @@ jobs:
           echo "url=$CSV_URL" >> "$GITHUB_OUTPUT"
 
       - name: Télécharger le CSV
-        run: curl -fL --progress-bar -o requetes311.csv "${{ steps.ckan.outputs.url }}"
+        run: |
+          curl -fL --retry 3 --retry-delay 5 --progress-bar \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" \
+            -H "Accept: text/csv,application/csv,*/*" \
+            -H "Accept-Language: fr-CA,fr;q=0.9,en;q=0.8" \
+            -H "Referer: https://donnees.montreal.ca/dataset/requete-311" \
+            -o requetes311.csv "${{ steps.ckan.outputs.url }}"
 
       - name: Générer les fichiers de données
         run: python3 generate.py
