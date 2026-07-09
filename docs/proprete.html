@@ -76,8 +76,41 @@
     .period-badge strong { color: var(--text); }
     .period-partial {
       font-size: .75rem; color: var(--text-lt); opacity: .8;
-      margin-left: auto;
     }
+    .pb-badges { display: contents; }
+    .pb-selects { display: none; align-items: center; gap: .4rem; flex-wrap: wrap; }
+    .pb-sel-group { display: flex; align-items: center; gap: .3rem; }
+    .pb-sel-group label {
+      font-size: .7rem; font-weight: 600; color: var(--text-lt);
+      text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+    }
+    .pb-sel-group select {
+      border: 1.5px solid var(--border); border-radius: 7px;
+      padding: .22rem .45rem; font-size: .78rem; color: var(--text);
+      background: var(--card); outline: none; cursor: pointer;
+    }
+    .pb-sel-group select:focus { border-color: var(--blue-lt); }
+    .pb-apply-btn {
+      background: var(--blue); color: #fff; border: none;
+      border-radius: 7px; padding: .28rem .75rem;
+      font-size: .78rem; font-weight: 600; cursor: pointer;
+    }
+    .pb-reset-btn {
+      background: none; border: 1.5px solid var(--border); color: var(--text-lt);
+      border-radius: 7px; padding: .22rem .6rem; font-size: .78rem; cursor: pointer;
+    }
+    .pb-reset-btn:hover { color: var(--text); }
+    .period-edit-btn {
+      margin-left: auto;
+      background: none; border: 1.5px solid var(--border); color: var(--text-lt);
+      border-radius: 2rem; padding: .2rem .75rem; font-size: .75rem;
+      cursor: pointer; white-space: nowrap; transition: all .15s;
+    }
+    .period-edit-btn:hover { color: var(--text); border-color: #94a3b8; }
+    .period-banner.editing .pb-badges   { display: none; }
+    .period-banner.editing .pb-selects  { display: flex; }
+    .period-banner.editing .period-partial { display: none; }
+    .period-banner.editing .period-edit-btn { display: none; }
 
     /* ── Section titles ─────────────────────────────────────── */
     .section-title {
@@ -368,12 +401,24 @@
   <!-- Period banner -->
   <div class="period-banner" id="period-banner">
     <span class="period-title">Période de référence</span>
-    <span class="period-badge" id="pb-ref"></span>
-    <span class="period-badge" id="pb-m1"></span>
-    <span class="period-badge" id="pb-m2"></span>
-    <span class="period-badge" id="pb-y1"></span>
-    <span class="period-badge" id="pb-y2"></span>
+    <span class="pb-badges">
+      <span class="period-badge" id="pb-ref"></span>
+      <span class="period-badge" id="pb-m1"></span>
+      <span class="period-badge" id="pb-m2"></span>
+      <span class="period-badge" id="pb-y1"></span>
+      <span class="period-badge" id="pb-y2"></span>
+    </span>
+    <span class="pb-selects">
+      <span class="pb-sel-group"><label>Réf.</label><select id="sel-ref"></select></span>
+      <span class="pb-sel-group"><label>−1 mois</label><select id="sel-m1"></select></span>
+      <span class="pb-sel-group"><label>−2 mois</label><select id="sel-m2"></select></span>
+      <span class="pb-sel-group"><label>−1 an</label><select id="sel-y1"></select></span>
+      <span class="pb-sel-group"><label>−2 ans</label><select id="sel-y2"></select></span>
+      <button class="pb-apply-btn" onclick="applyPeriods()">Appliquer</button>
+      <button class="pb-reset-btn" onclick="resetPeriods()">↺ Réinitialiser</button>
+    </span>
     <span class="period-partial">* Le mois en cours peut être incomplet</span>
+    <button class="period-edit-btn" onclick="togglePeriodEdit()">✏️ Modifier les périodes</button>
   </div>
 
   <!-- KPI cards -->
@@ -662,6 +707,69 @@ function buildBanner(ref, m1, m2, y1, y2) {
   document.getElementById("pb-y2").innerHTML  = `vs <strong>${fmtMonth(y2)}</strong> (−2 ans)`;
 }
 
+// ── Period state ──────────────────────────────────────────────────────────────
+
+const PERIOD_KEY = "311_periods_v1";
+let pRef, pM1, pM2, pY1, pY2;           // current selection
+let pDefRef, pDefM1, pDefM2, pDefY1, pDefY2;  // data defaults
+
+function loadSavedPeriods() {
+  try {
+    const raw = localStorage.getItem(PERIOD_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    const valid = new Set(PROPRETE_MONTHS);
+    if (s.ref && valid.has(s.ref)) return s;
+  } catch {}
+  return null;
+}
+
+function savePeriods() {
+  localStorage.setItem(PERIOD_KEY, JSON.stringify({ ref: pRef, m1: pM1, m2: pM2, y1: pY1, y2: pY2 }));
+}
+
+function renderAll() {
+  buildBanner(pRef, pM1, pM2, pY1, pY2);
+  buildKpiCards(pRef, pM1, pM2, pY1, pY2);
+  destroyAll();
+  buildTimeline();
+  buildComparison(pRef, pM1, pM2, pY1, pY2);
+  buildCompletion();
+  checkAlerts(pRef);
+}
+
+function togglePeriodEdit() {
+  const banner = document.getElementById("period-banner");
+  banner.classList.toggle("editing");
+  if (banner.classList.contains("editing")) {
+    const months = [...PROPRETE_MONTHS].reverse();
+    const opts = months.map(m => `<option value="${m}">${fmtMonth(m)}</option>`).join("");
+    [["ref", pRef], ["m1", pM1], ["m2", pM2], ["y1", pY1], ["y2", pY2]].forEach(([key, cur]) => {
+      const sel = document.getElementById(`sel-${key}`);
+      sel.innerHTML = opts;
+      sel.value = cur;
+    });
+  }
+}
+
+function applyPeriods() {
+  pRef = document.getElementById("sel-ref").value;
+  pM1  = document.getElementById("sel-m1").value;
+  pM2  = document.getElementById("sel-m2").value;
+  pY1  = document.getElementById("sel-y1").value;
+  pY2  = document.getElementById("sel-y2").value;
+  savePeriods();
+  document.getElementById("period-banner").classList.remove("editing");
+  renderAll();
+}
+
+function resetPeriods() {
+  pRef = pDefRef; pM1 = pDefM1; pM2 = pDefM2; pY1 = pDefY1; pY2 = pDefY2;
+  localStorage.removeItem(PERIOD_KEY);
+  document.getElementById("period-banner").classList.remove("editing");
+  renderAll();
+}
+
 // ── Notification system ───────────────────────────────────────────────────────
 
 const NOTIF_KEY  = "311_notif_v1";
@@ -761,10 +869,8 @@ function checkAlerts(ref) {
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
-let _modalRef = null;
-
-function openModal(ref) {
-  _modalRef = ref;
+function openModal() {
+  const ref = pRef;
   const settings = loadNotifSettings();
   const body = document.getElementById("modal-body");
 
@@ -861,7 +967,7 @@ function saveModal() {
 
   saveNotifSettings(settings);
   closeModal();
-  if (_modalRef) checkAlerts(_modalRef);
+  checkAlerts(pRef);
 }
 
 function sendTestNotif() {
@@ -888,21 +994,25 @@ async function init() {
       document.head.appendChild(s);
     });
 
-    const ref = PROPRETE_REF_MONTH;
-    const m1  = offsetMonth(ref, -1);
-    const m2  = offsetMonth(ref, -2);
-    const y1  = offsetMonth(ref, -12);
-    const y2  = offsetMonth(ref, -24);
+    // Compute defaults from data
+    pDefRef = PROPRETE_REF_MONTH;
+    pDefM1  = offsetMonth(pDefRef, -1);
+    pDefM2  = offsetMonth(pDefRef, -2);
+    pDefY1  = offsetMonth(pDefRef, -12);
+    pDefY2  = offsetMonth(pDefRef, -24);
 
-    buildBanner(ref, m1, m2, y1, y2);
-    buildKpiCards(ref, m1, m2, y1, y2);
-    buildTimeline();
-    buildComparison(ref, m1, m2, y1, y2);
-    buildCompletion();
-    checkAlerts(ref);
+    // Load saved periods or fall back to defaults
+    const saved = loadSavedPeriods();
+    if (saved) {
+      pRef = saved.ref; pM1 = saved.m1; pM2 = saved.m2; pY1 = saved.y1; pY2 = saved.y2;
+    } else {
+      pRef = pDefRef; pM1 = pDefM1; pM2 = pDefM2; pY1 = pDefY1; pY2 = pDefY2;
+    }
+
+    renderAll();
 
     // Notification modal
-    document.getElementById("notif-btn").addEventListener("click", () => openModal(ref));
+    document.getElementById("notif-btn").addEventListener("click", openModal);
     document.getElementById("btn-save-notif").addEventListener("click", saveModal);
     document.getElementById("btn-test-notif").addEventListener("click", sendTestNotif);
 
