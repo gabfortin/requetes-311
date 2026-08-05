@@ -33,8 +33,8 @@ def extract_var(js_text, varname):
 def load_data():
     with open(os.path.join(DOCS_DIR, "data.js"), encoding="utf-8") as f:
         data_js = f.read()
-    with open(os.path.join(DOCS_DIR, "rows.json"), encoding="utf-8") as f:
-        rows = json.load(f)
+    with open(os.path.join(DOCS_DIR, "rows.js"), encoding="utf-8") as f:
+        rows = extract_var(f.read(), "ROWS")
     return {
         "MONTHS": extract_var(data_js, "MONTHS"),
         "NATURES": extract_var(data_js, "NATURES"),

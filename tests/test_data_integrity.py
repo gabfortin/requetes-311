@@ -1,5 +1,5 @@
 """
-Vérifie l'intégrité des données déjà générées dans docs/ (data.js, rows.json,
+Vérifie l'intégrité des données déjà générées dans docs/ (data.js, rows.js,
 proprete_data.js) : bornes d'index valides, cohérence interne, et surtout
 cohérence CROISÉE entre les deux pipelines indépendants de generate.py
 (ROWS d'un côté, PROPRETE_DATA de l'autre) qui dérivent tous les deux du même
@@ -38,8 +38,8 @@ class TestDataFiles(unittest.TestCase):
         cls.STATUSES    = extract_var(data_js, "STATUSES")
         cls.WEEKDAYS    = extract_var(data_js, "WEEKDAYS")
         cls.PROV_LABELS = extract_var(data_js, "PROV_LABELS")
-        with open(os.path.join(DOCS_DIR, "rows.json"), encoding="utf-8") as f:
-            cls.ROWS = json.load(f)
+        with open(os.path.join(DOCS_DIR, "rows.js"), encoding="utf-8") as f:
+            cls.ROWS = extract_var(f.read(), "ROWS")
         with open(os.path.join(DOCS_DIR, "proprete_data.js"), encoding="utf-8") as f:
             proprete_js = f.read()
         cls.PROPRETE_CATS  = extract_var(proprete_js, "PROPRETE_CATS")

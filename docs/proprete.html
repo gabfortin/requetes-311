@@ -560,10 +560,21 @@ let timelineIndexed = false;
 function buildTimeline() {
   if (charts.timeline) charts.timeline.destroy();
   const last24 = PROPRETE_MONTHS.slice(-24);
+
+  // Estimation du mois en cours
+  const _now = new Date();
+  const _nowYM = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,"0")}`;
+  const _lastM = last24[last24.length - 1];
+  const _isPartial = _lastM === _nowYM;
+  const _factor = _isPartial
+    ? new Date(_now.getFullYear(), _now.getMonth()+1, 0).getDate() / _now.getDate() : 1;
+  const _lastIdx = last24.length - 1;
+
   const datasets = PROPRETE_CATS.map(cat => {
-    const raw = last24.map(m => {
+    const raw = last24.map((m, i) => {
       const d = getData(m, cat.id);
-      return d ? d.t : 0;
+      if (!d) return 0;
+      return (_isPartial && i === _lastIdx) ? Math.round(d.t * _factor) : d.t;
     });
     const base = raw.find(v => v > 0) || 1;
     const data = timelineIndexed ? raw.map(v => +(v / base * 100).toFixed(1)) : raw;
@@ -573,8 +584,10 @@ function buildTimeline() {
       borderColor: cat.color,
       backgroundColor: cat.color + "18",
       borderWidth: 2.5,
-      pointRadius: 2,
-      pointHoverRadius: 6,
+      pointRadius: data.map((_, i) => (_isPartial && i === _lastIdx) ? 6 : 2),
+      pointHoverRadius: 7,
+      pointBackgroundColor: data.map((_, i) => (_isPartial && i === _lastIdx) ? "#f59e0b" : cat.color),
+      pointBorderColor:     data.map((_, i) => (_isPartial && i === _lastIdx) ? "#f59e0b" : cat.color),
       pointHoverBackgroundColor: "#fff",
       pointHoverBorderWidth: 2,
       tension: .35,
@@ -592,7 +605,15 @@ function buildTimeline() {
         legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } },
         tooltip: { callbacks: {
           title: ([ctx]) => ctx.label,
-          label: ctx => ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)}${timelineIndexed ? " (indice)" : ""}`,
+          label: ctx => {
+            const isEst = _isPartial && ctx.dataIndex === _lastIdx;
+            return ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)}${timelineIndexed ? " (indice)" : ""}${isEst ? " *" : ""}`;
+          },
+          footer: (items) => {
+            if (_isPartial && items.some(c => c.dataIndex === _lastIdx))
+              return "* estimation — mois en cours incomplet";
+            return "";
+          },
         }},
       },
       scales: {

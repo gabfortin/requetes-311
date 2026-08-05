@@ -11,7 +11,7 @@ from collections import Counter
 
 CSV_PATH = os.path.join(os.path.dirname(__file__), "requetes311.csv")
 OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "data.js")
-ROWS_PATH = os.path.join(os.path.dirname(__file__), "docs", "rows.json")
+ROWS_PATH = os.path.join(os.path.dirname(__file__), "docs", "rows.js")
 PROPRETE_OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "proprete_data.js")
 ARROND = "Le Plateau-Mont-Royal"
 
@@ -163,7 +163,9 @@ def main():
         f.write(f"var PROV_LABELS={json.dumps(PROV_LABELS, ensure_ascii=False, separators=(',',':'))};\n")
 
     with open(ROWS_PATH, "w", encoding="utf-8") as f:
+        f.write("var ROWS=")
         f.write(json.dumps(encoded, separators=(',', ':')))
+        f.write(";\n")
 
     print(f"Écrit : {OUT_PATH} ({os.path.getsize(OUT_PATH):,} octets)")
     print(f"Écrit : {ROWS_PATH} ({os.path.getsize(ROWS_PATH):,} octets)")

@@ -422,8 +422,17 @@ function buildKpiCards(cur, ly, lyYear) {
 function buildTimeline(curYear, lyYear, cur, lyFull) {
   if (charts.timeline) charts.timeline.destroy();
 
+  // Estimation du mois en cours (année courante seulement)
+  const _now = new Date();
+  const _isCurrentYear = curYear === _now.getFullYear();
+  const _curMoIdx = _now.getMonth(); // 0-based
+  const _factor = _isCurrentYear
+    ? new Date(_now.getFullYear(), _now.getMonth()+1, 0).getDate() / _now.getDate() : 1;
+
   const curByMoY = Array(12).fill(null);
   Object.entries(cur.byMonth).forEach(([m, c]) => { curByMoY[+m.slice(5, 7) - 1] = c; });
+  if (_isCurrentYear && curByMoY[_curMoIdx] != null)
+    curByMoY[_curMoIdx] = Math.round(curByMoY[_curMoIdx] * _factor);
 
   const lyByMoY = Array(12).fill(null);
   Object.entries(lyFull.byMonth).forEach(([m, c]) => { lyByMoY[+m.slice(5, 7) - 1] = c; });
@@ -436,7 +445,11 @@ function buildTimeline(curYear, lyYear, cur, lyFull) {
         {
           label: String(curYear), data: curByMoY,
           borderColor: "#2e76c8", backgroundColor: "rgba(46,118,200,.12)",
-          borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 6,
+          borderWidth: 2.5,
+          pointRadius: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? 6 : 3),
+          pointHoverRadius: 7,
+          pointBackgroundColor: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#f59e0b" : "#2e76c8"),
+          pointBorderColor:     curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#f59e0b" : "#2e76c8"),
           tension: .35, fill: true, spanGaps: false,
         },
         {
@@ -452,7 +465,18 @@ function buildTimeline(curYear, lyYear, cur, lyFull) {
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } },
-        tooltip: { callbacks: { label: ctx => ctx.parsed.y != null ? ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)} requêtes` : "" } },
+        tooltip: { callbacks: {
+          label: ctx => {
+            if (ctx.parsed.y == null) return "";
+            const isEst = _isCurrentYear && ctx.datasetIndex === 0 && ctx.dataIndex === _curMoIdx;
+            return ` ${ctx.dataset.label} : ${fmt(ctx.parsed.y)} requêtes${isEst ? " *" : ""}`;
+          },
+          footer: (items) => {
+            if (_isCurrentYear && items.some(c => c.datasetIndex === 0 && c.dataIndex === _curMoIdx && c.parsed.y != null))
+              return "* estimation — mois en cours incomplet";
+            return "";
+          },
+        }},
       },
       scales: {
         x: { grid: { display: false } },
@@ -624,7 +648,7 @@ async function init() {
   const loadingEl = document.getElementById("loading");
   try {
     await withRetry(() => loadScript("data.js"));
-    window.ROWS = await withRetry(() => fetchJSON("rows.json"));
+    await withRetry(() => loadScript("rows.js"));
 
     const lastMonth = MONTHS[MONTHS.length - 1];
     const curYear = +lastMonth.slice(0, 4);

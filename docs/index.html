@@ -521,6 +521,16 @@ function render() {
     tlLabels.push(months[i]); tlData.push(counts[i]);
   }
 
+  // Estimation du mois en cours
+  const _now = new Date();
+  const _nowYM = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,"0")}`;
+  const _isPartial = months[months.length-1] === _nowYM;
+  const _factor = _isPartial
+    ? new Date(_now.getFullYear(), _now.getMonth()+1, 0).getDate() / _now.getDate() : 1;
+  const _lastTlIdx = tlData.length - 1;
+  if (_isPartial && tlData[_lastTlIdx] != null)
+    tlData[_lastTlIdx] = Math.round(tlData[_lastTlIdx] * _factor);
+
   charts.timeline = new Chart(document.getElementById("chart-timeline"), {
     type: "line",
     plugins: [crosshairPlugin],
@@ -528,7 +538,10 @@ function render() {
       label: "Requêtes", data: tlData,
       borderColor: "#2e76c8", backgroundColor: "rgba(46,118,200,.12)",
       borderWidth: 2,
-      pointRadius: 0, pointHoverRadius: 6,
+      pointRadius: tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? 6 : 0),
+      pointHoverRadius: 7,
+      pointBackgroundColor: tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? "#f59e0b" : "#2e76c8"),
+      pointBorderColor:     tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? "#f59e0b" : "#2e76c8"),
       pointHoverBackgroundColor: "#fff", pointHoverBorderColor: "#2e76c8", pointHoverBorderWidth: 2,
       fill: true, tension: .35, spanGaps: false,
     }]},
@@ -539,10 +552,13 @@ function render() {
         legend: { display: false },
         tooltip: { callbacks: {
           title: ([ctx]) => ctx.label ? fmtMonth(ctx.label) : "",
-          label: (ctx) => ctx.parsed.y != null ? ` ${fmt(ctx.parsed.y)} requêtes` : "",
+          label: (ctx) => {
+            if (ctx.parsed.y == null) return "";
+            const isEst = _isPartial && ctx.dataIndex === _lastTlIdx;
+            return ` ${fmt(ctx.parsed.y)} requêtes${isEst ? " *" : ""}`;
+          },
           afterLabel: (ctx) => {
             if (ctx.parsed.y == null) return "";
-            // Trouver le mois précédent non-null
             let i = ctx.dataIndex - 1;
             while (i >= 0 && tlData[i] == null) i--;
             if (i < 0) return "";
@@ -550,6 +566,11 @@ function render() {
             const diff = ctx.parsed.y - prev;
             const sign = diff >= 0 ? "+" : "";
             return `  ${sign}${fmt(diff)}  (${sign}${(diff / prev * 100).toFixed(1)} % vs mois préc.)`;
+          },
+          footer: (items) => {
+            if (_isPartial && items.some(c => c.dataIndex === _lastTlIdx && c.parsed.y != null))
+              return "* estimation — mois en cours incomplet";
+            return "";
           },
         }},
       },
@@ -794,7 +815,7 @@ async function init() {
   const loadingEl = document.getElementById("loading");
   try {
     await withRetry(() => loadScript("data.js"));
-    window.ROWS = await withRetry(() => fetchJSON("rows.json"));
+    await withRetry(() => loadScript("rows.js"));
 
     MONTH_YEAR = MONTHS.map(m => m.slice(0, 4));
     ACTI_TOTAL = new Int32Array(ACTIVITIES.length);

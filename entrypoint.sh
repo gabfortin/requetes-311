@@ -50,7 +50,7 @@ echo "==> Génération des fichiers de données..."
 python3 generate.py
 
 echo "==> Staging des fichiers générés..."
-git add docs/data.js docs/rows.json docs/proprete_data.js
+git add docs/data.js docs/rows.js docs/proprete_data.js
 
 if git diff --staged --quiet; then
   echo "==> Aucun changement détecté — rien à pousser."
