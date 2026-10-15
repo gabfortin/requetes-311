@@ -9,13 +9,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue:    #1a4f8a;
-      --blue-lt: #2e76c8;
-      --green:   #27ae60;
-      --red:     #c0392b;
-      --orange:  #e67e22;
-      --purple:  #8e44ad;
-      --teal:    #16a085;
+      --blue:    #34539e;
+      --blue-lt: #3f6fb0;
+      --green:   #3a8a62;
+      --red:     #b4483f;
+      --orange:  #c97a35;
+      --purple:  #7d58a8;
+      --teal:    #2f8f7a;
       --bg:      #f4f6fa;
       --card:    #ffffff;
       --border:  #e2e8f0;
@@ -174,11 +174,13 @@
       .chart-wrap.short  { height: 190px; }
     }
   </style>
+  <link rel="stylesheet" href="glass.css" />
 </head>
 <body>
 
 <div id="loading"><div class="spinner"></div>Chargement des données…</div>
 
+<div class="topbar">
 <header>
   <div class="logo">Requêtes <span>311</span></div>
   <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
@@ -187,8 +189,10 @@
 <nav class="tabs">
   <a class="tab" href="index.html">Vue d'ensemble</a>
   <a class="tab" href="proprete.html">🧹 Propreté</a>
-  <a class="tab active">📅 Bilan annuel</a>
+  <a class="tab" href="circulation.html">🚦 Circulation</a>
+  <a class="tab active" href="annee.html" aria-current="page">📅 Bilan annuel</a>
 </nav>
+</div>
 
 <main>
   <!-- Period banner -->
@@ -285,7 +289,7 @@ function pct(curr, prevVal) {
 }
 
 // ── Chart setup ───────────────────────────────────────────────────────────────
-Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 Chart.defaults.color = "#64748b";
 Object.assign(Chart.defaults.plugins.tooltip, {
   backgroundColor: "rgba(15,23,42,0.88)",
@@ -294,9 +298,9 @@ Object.assign(Chart.defaults.plugins.tooltip, {
   padding: 12, cornerRadius: 10, boxPadding: 5, usePointStyle: true,
 });
 const COLORS = [
-  "#2e76c8","#27ae60","#e67e22","#c0392b","#8e44ad",
-  "#16a085","#d35400","#f39c12","#7f8c8d","#1abc9c",
-  "#e74c3c","#9b59b6",
+  "#3f6fb0","#3a8a62","#c97a35","#b4483f","#7d58a8",
+  "#2f8f7a","#b8662e","#cc9a3c","#7b8587","#4f9f8f",
+  "#c25e55","#8a6fb8",
 ];
 
 let charts = {};
@@ -444,12 +448,12 @@ function buildTimeline(curYear, lyYear, cur, lyFull) {
       datasets: [
         {
           label: String(curYear), data: curByMoY,
-          borderColor: "#2e76c8", backgroundColor: "rgba(46,118,200,.12)",
+          borderColor: "#3f6fb0", backgroundColor: "rgba(63,111,176,.12)",
           borderWidth: 2.5,
           pointRadius: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? 6 : 3),
           pointHoverRadius: 7,
-          pointBackgroundColor: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#f59e0b" : "#2e76c8"),
-          pointBorderColor:     curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#f59e0b" : "#2e76c8"),
+          pointBackgroundColor: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#cc9a3c" : "#3f6fb0"),
+          pointBorderColor:     curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#cc9a3c" : "#3f6fb0"),
           tension: .35, fill: true, spanGaps: false,
         },
         {
@@ -480,7 +484,7 @@ function buildTimeline(curYear, lyYear, cur, lyFull) {
       },
       scales: {
         x: { grid: { display: false } },
-        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
       },
     },
   });
@@ -491,10 +495,10 @@ function buildNature(cur) {
   if (charts.nature) charts.nature.destroy();
   const labels = Object.keys(cur.byNature);
   const data   = Object.values(cur.byNature);
-  const colorMap = { "Requete": "#2e76c8", "Plainte": "#c0392b", "Commentaire": "#27ae60" };
+  const colorMap = { "Requete": "#3f6fb0", "Plainte": "#b4483f", "Commentaire": "#3a8a62" };
   charts.nature = new Chart(document.getElementById("chart-nature"), {
     type: "doughnut",
-    data: { labels, datasets: [{ data, backgroundColor: labels.map(l => colorMap[l] || "#7f8c8d"), borderWidth: 2 }] },
+    data: { labels, datasets: [{ data, backgroundColor: labels.map(l => colorMap[l] || "#7b8587"), borderWidth: 2 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
@@ -516,7 +520,7 @@ function buildProv(cur, ly, curYear, lyYear) {
     data: {
       labels: PROV_LABELS,
       datasets: [
-        { label: String(curYear), data: cur.byProv, backgroundColor: "#2e76c8", borderRadius: 4 },
+        { label: String(curYear), data: cur.byProv, backgroundColor: "#3f6fb0", borderRadius: 4 },
         { label: String(lyYear),  data: ly.byProv,  backgroundColor: "#cbd5e1", borderRadius: 4 },
       ],
     },
@@ -526,7 +530,7 @@ function buildProv(cur, ly, curYear, lyYear) {
       plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } },
-        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
       },
     },
   });
@@ -543,13 +547,13 @@ function buildTopActi(cur) {
   const data   = entries.map(e => e[1]);
   charts.topActi = new Chart(document.getElementById("chart-top-acti"), {
     type: "bar",
-    data: { labels, datasets: [{ data, backgroundColor: labels.map((_, i) => COLORS[i % COLORS.length]), borderRadius: 4 }] },
+    data: { labels, datasets: [{ data, backgroundColor: COLORS[0], borderRadius: 4 }] },
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: "y",
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+        x: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
         y: { grid: { display: false }, ticks: { font: { size: 11 } } },
       },
     },
@@ -592,13 +596,13 @@ function buildHabits(cur) {
   charts.weekday = new Chart(document.getElementById("chart-weekday"), {
     type: "bar",
     data: { labels: WEEKDAYS, datasets: [{ data: cur.byWeekday, borderRadius: 4,
-      backgroundColor: cur.byWeekday.map((_, i) => i >= 5 ? "#e67e22" : "#2e76c8"),
+      backgroundColor: cur.byWeekday.map((_, i) => i >= 5 ? "#c97a35" : "#3f6fb0"),
     }]},
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false } },
-      scales: { x: { grid: { display: false } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true } },
     },
   });
 
@@ -607,7 +611,7 @@ function buildHabits(cur) {
   charts.hour = new Chart(document.getElementById("chart-hour"), {
     type: "bar",
     data: { labels: hourLabels, datasets: [{ data: cur.byHour, borderRadius: 2,
-      backgroundColor: cur.byHour.map(v => `rgba(46,118,200,${.25 + v / maxH * .75})`),
+      backgroundColor: cur.byHour.map(v => `rgba(63,111,176,${.25 + v / maxH * .75})`),
     }]},
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -615,7 +619,7 @@ function buildHabits(cur) {
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: true, maxTicksLimit: 12 } },
-        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
       },
     },
   });

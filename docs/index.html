@@ -9,11 +9,11 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue:    #1a4f8a;
-      --blue-lt: #2e76c8;
-      --red:     #c0392b;
-      --green:   #27ae60;
-      --orange:  #e67e22;
+      --blue:    #34539e;
+      --blue-lt: #3f6fb0;
+      --red:     #b4483f;
+      --green:   #3a8a62;
+      --orange:  #c97a35;
       --bg:      #f4f6fa;
       --card:    #ffffff;
       --border:  #e2e8f0;
@@ -87,7 +87,7 @@
       background: var(--blue); border-color: var(--blue);
       color: #fff; font-weight: 600;
     }
-    .filter-btn[data-nature="Requete"].active   { background: #2e76c8; border-color: #2e76c8; }
+    .filter-btn[data-nature="Requete"].active   { background: #3f6fb0; border-color: #3f6fb0; }
     .filter-btn[data-nature="Plainte"].active   { background: var(--red); border-color: var(--red); }
     .filter-btn[data-nature="Commentaire"].active { background: var(--green); border-color: var(--green); }
 
@@ -250,21 +250,25 @@
       #acti-dropdown { width: calc(100vw - 2rem); max-width: 340px; }
     }
   </style>
+  <link rel="stylesheet" href="glass.css" />
 </head>
 <body>
 
 <div id="loading"><div class="spinner"></div>Chargement des données…</div>
 
+<div class="topbar">
 <header>
   <div class="logo">Requêtes <span>311</span></div>
   <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
 </header>
 
 <nav class="tabs">
-  <a class="tab active" href="index.html">Vue d'ensemble</a>
+  <a class="tab active" href="index.html" aria-current="page">Vue d'ensemble</a>
   <a class="tab" href="proprete.html">🧹 Propreté</a>
+  <a class="tab" href="circulation.html">🚦 Circulation</a>
   <a class="tab" href="annee.html">📅 Bilan annuel</a>
 </nav>
+</div>
 
 <div class="filters">
   <!-- Année (multi-sélection) -->
@@ -367,14 +371,14 @@ let MONTH_YEAR, ACTI_TOTAL, TERM_IDX;
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 const COLORS = [
-  "#2e76c8","#27ae60","#e67e22","#c0392b","#8e44ad",
-  "#16a085","#d35400","#f39c12","#7f8c8d","#1abc9c",
-  "#e74c3c","#9b59b6","#3498db","#2ecc71","#f1c40f",
-  "#34495e","#1a4f8a","#c0392b","#8e44ad","#16a085",
-  "#d35400","#f39c12","#2e76c8","#27ae60","#e67e22",
+  "#3f6fb0","#3a8a62","#c97a35","#b4483f","#7d58a8",
+  "#2f8f7a","#b8662e","#cc9a3c","#7b8587","#4f9f8f",
+  "#c25e55","#8a6fb8","#5a85c2","#5ba377","#cfae45",
+  "#4a5a6b","#34539e","#b4483f","#7d58a8","#2f8f7a",
+  "#b8662e","#cc9a3c","#3f6fb0","#3a8a62","#c97a35",
 ];
 
-Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 Chart.defaults.color = "#64748b";
 
 Object.assign(Chart.defaults.plugins.tooltip, {
@@ -415,7 +419,7 @@ const crosshairPlugin = {
     ctx.moveTo(x, y.top);
     ctx.lineTo(x, y.bottom);
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "rgba(46,118,200,.3)";
+    ctx.strokeStyle = "rgba(63,111,176,.3)";
     ctx.setLineDash([5, 4]);
     ctx.stroke();
     ctx.restore();
@@ -536,13 +540,13 @@ function render() {
     plugins: [crosshairPlugin],
     data: { labels: tlLabels, datasets: [{
       label: "Requêtes", data: tlData,
-      borderColor: "#2e76c8", backgroundColor: "rgba(46,118,200,.12)",
+      borderColor: "#3f6fb0", backgroundColor: "rgba(63,111,176,.12)",
       borderWidth: 2,
       pointRadius: tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? 6 : 0),
       pointHoverRadius: 7,
-      pointBackgroundColor: tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? "#f59e0b" : "#2e76c8"),
-      pointBorderColor:     tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? "#f59e0b" : "#2e76c8"),
-      pointHoverBackgroundColor: "#fff", pointHoverBorderColor: "#2e76c8", pointHoverBorderWidth: 2,
+      pointBackgroundColor: tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? "#cc9a3c" : "#3f6fb0"),
+      pointBorderColor:     tlData.map((_, i) => (_isPartial && i === _lastTlIdx) ? "#cc9a3c" : "#3f6fb0"),
+      pointHoverBackgroundColor: "#fff", pointHoverBorderColor: "#3f6fb0", pointHoverBorderWidth: 2,
       fill: true, tension: .35, spanGaps: false,
     }]},
     options: {
@@ -582,7 +586,7 @@ function render() {
             callback(val, i) { return tlLabels[i] ? tlLabels[i] : ""; },
           },
         },
-        y: { grid: { color: "#f0f4f8" }, beginAtZero: true },
+        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
       },
     },
   });
@@ -611,7 +615,7 @@ function render() {
   // ── Status ──────────────────────────────────────────────────
   const stLabels = Object.keys(d.byStatus);
   const stData   = Object.values(d.byStatus);
-  const stColors = stLabels.map(l => ({"Terminée":"#27ae60","Refusée":"#c0392b","Annulée":"#e67e22","Urgente":"#8e44ad"}[l] || "#2e76c8"));
+  const stColors = stLabels.map(l => ({"Terminée":"#3a8a62","Refusée":"#b4483f","Annulée":"#c97a35","Urgente":"#7d58a8"}[l] || "#3f6fb0"));
   charts.status = new Chart(document.getElementById("chart-status"), {
     type: "bar",
     data: { labels: stLabels, datasets: [{ data: stData, backgroundColor: stColors, borderRadius: 4 }] },
@@ -619,7 +623,7 @@ function render() {
       responsive: true, maintainAspectRatio: false, indexAxis: "y",
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.x, stData) } } },
-      scales: { x: { grid: { color: "#f0f4f8" }, beginAtZero: true }, y: { grid: { display: false } } },
+      scales: { x: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true }, y: { grid: { display: false } } },
     },
   });
 
@@ -633,12 +637,12 @@ function render() {
     const actData   = d.topActivities.map(r => r[1]);
     charts.activities = new Chart(document.getElementById("chart-activities"), {
       type: "bar",
-      data: { labels: actLabels, datasets: [{ data: actData, backgroundColor: actLabels.map((_, i) => COLORS[i % COLORS.length]), borderRadius: 4 }] },
+      data: { labels: actLabels, datasets: [{ data: actData, backgroundColor: COLORS[0], borderRadius: 4 }] },
       options: {
         responsive: true, maintainAspectRatio: false, indexAxis: "y",
         interaction: { mode: "index", intersect: false },
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.x, actData) } } },
-        scales: { x: { grid: { color: "#f0f4f8" }, beginAtZero: true }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } },
+        scales: { x: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } },
       },
     });
   }
@@ -651,7 +655,7 @@ function render() {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.y, d.byProv) } } },
-      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } }, y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true } },
     },
   });
 
@@ -661,7 +665,7 @@ function render() {
   charts.hour = new Chart(document.getElementById("chart-hour"), {
     type: "bar",
     data: { labels: hourLabels, datasets: [{ data: d.byHour, borderRadius: 2,
-      backgroundColor: d.byHour.map(v => `rgba(46,118,200,${.25 + v / maxH * .75})`),
+      backgroundColor: d.byHour.map(v => `rgba(63,111,176,${.25 + v / maxH * .75})`),
     }]},
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -670,7 +674,7 @@ function render() {
         title: ([ctx]) => `${String(ctx.dataIndex).padStart(2,"0")}h00 – ${String(ctx.dataIndex+1).padStart(2,"0")}h00`,
         label: ctx => pctLabel(ctx.parsed.y, d.byHour),
       }}},
-      scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: true, maxTicksLimit: 12 } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: true, maxTicksLimit: 12 } }, y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true } },
     },
   });
 
@@ -678,13 +682,13 @@ function render() {
   charts.weekday = new Chart(document.getElementById("chart-weekday"), {
     type: "bar",
     data: { labels: WEEKDAYS, datasets: [{ data: d.byWeekday, borderRadius: 4,
-      backgroundColor: d.byWeekday.map((_, i) => i >= 5 ? "#e67e22" : "#2e76c8"),
+      backgroundColor: d.byWeekday.map((_, i) => i >= 5 ? "#c97a35" : "#3f6fb0"),
     }]},
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => pctLabel(ctx.parsed.y, d.byWeekday) } } },
-      scales: { x: { grid: { display: false } }, y: { grid: { color: "#f0f4f8" }, beginAtZero: true } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true } },
     },
   });
 }

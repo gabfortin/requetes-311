@@ -1,5 +1,5 @@
 """
-Génère docs/data.js à partir de requetes311.csv (Le Plateau-Mont-Royal seulement).
+Génère docs/data.js (+ rows.js, proprete_data.js, circulation_data.js) à partir de requetes311.csv (Le Plateau-Mont-Royal seulement).
 Approche : lignes brutes compactes + tables de lookup → filtrage 100% client-side.
 Usage: python3 generate.py
 """
@@ -13,6 +13,7 @@ CSV_PATH = os.path.join(os.path.dirname(__file__), "requetes311.csv")
 OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "data.js")
 ROWS_PATH = os.path.join(os.path.dirname(__file__), "docs", "rows.js")
 PROPRETE_OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "proprete_data.js")
+CIRCULATION_OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "circulation_data.js")
 ARROND = "Le Plateau-Mont-Royal"
 
 # Colonnes de provenance à inclure (on exclut les quasi-nulles)
@@ -32,18 +33,36 @@ N_PROV = len(PROV_COLS)
 WD_MAP = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 0: 6}
 
 PROPRETE_CATS = [
-    {"id": "depots",     "label": "Dépôts illégaux",     "icon": "🗑️",  "color": "#c0392b",
+    {"id": "depots",     "label": "Dépôts illégaux",     "icon": "🗑️",  "color": "#b4483f",
      "activities": ["Dépôt illégal - Déchets", "Dépôt Illégal - Neige"]},
-    {"id": "nettoyage",  "label": "Nettoyage",            "icon": "🧹",  "color": "#16a085",
+    {"id": "nettoyage",  "label": "Nettoyage",            "icon": "🧹",  "color": "#2f8f7a",
      "activities": ["Nettoyage du domaine public"]},
-    {"id": "ordures",    "label": "Collecte ordures",     "icon": "🚛",  "color": "#2e76c8",
+    {"id": "ordures",    "label": "Collecte ordures",     "icon": "🚛",  "color": "#3f6fb0",
      "activities": ["Collecte de déchets", "Encombrants non ramassés",
                     "Collecte des encombrants", "Bac roulant", "Bac montréalais (67 litres)"]},
-    {"id": "recyclage",  "label": "Collecte recyclage",   "icon": "♻️",  "color": "#8e44ad",
+    {"id": "recyclage",  "label": "Collecte recyclage",   "icon": "♻️",  "color": "#7d58a8",
      "activities": ["Collecte des matières recyclables", "Bac roulant - Matières recyclables"]},
-    {"id": "organiques", "label": "Collecte organiques",  "icon": "🌱",  "color": "#e67e22",
+    {"id": "organiques", "label": "Collecte organiques",  "icon": "🌱",  "color": "#c97a35",
      "activities": ["Collecte de résidus alimentaires", "Bac roulant - Résidus alimentaires",
                     "Collecte de résidus verts", "Collecte des matières organiques"]},
+]
+CIRCULATION_CATS = [
+    {"id": "etudes",        "label": "Études de circulation", "icon": "🔍", "color": "#5a63c0",
+     "activities": ["Signalisation - Circulation - Études"]},
+    {"id": "feux",          "label": "Feux de circulation",   "icon": "🚦", "color": "#bf3f55",
+     "activities": ["Feux de circulation - Entretien", "Feux de circulation - Nouvelle installation"]},
+    {"id": "signalisation", "label": "Signalisation",         "icon": "🪧", "color": "#c08030",
+     "activities": ["Signalisation écrite -  Entretien", "Panneau de signalisation entretien prioritaire",
+                    "Signalisation cachée par des végétaux", "Signalisation non autorisée - Analyse",
+                    "Signalisation non autorisée - Ramassage"]},
+    {"id": "marquage",      "label": "Marquage au sol",       "icon": "🛣️", "color": "#2f87a3",
+     "activities": ["Marquage de la chaussée - Existant", "Marquage de la chaussée - Nouveau"]},
+    {"id": "velo",          "label": "Vélo",                  "icon": "🚲", "color": "#3a8a62",
+     "activities": ["Voie cyclable - Études", "Voie cyclable - Planification - Service central",
+                    "Voie cyclable - Marquage et signalisation écrite", "Support à vélo"]},
+    {"id": "chaussee",      "label": "Chaussée et trottoirs", "icon": "🚧", "color": "#7d52b0",
+     "activities": ["Nid-de-poule", "Pavage - Réparation", "Trottoir ou bordure - Réparation",
+                    "Entretien - Dos d'âne de ruelle"]},
 ]
 TERM_STATUS = "Terminée"
 
@@ -111,8 +130,8 @@ def encode_rows(raw, months, natures, activities, statuses):
     return encoded
 
 
-def query_proprete(con, csv_path, cat, arrond=ARROND):
-    """Compte total/terminées par mois pour les activités d'une catégorie propreté donnée."""
+def query_category(con, csv_path, cat, arrond=ARROND):
+    """Compte total/terminées par mois pour les activités d'une catégorie donnée."""
     cat_set = set(cat["activities"])
     acti_list = ",".join("'" + a.replace("'", "''") + "'" for a in cat_set)
     return con.execute(f"""
@@ -128,13 +147,35 @@ def query_proprete(con, csv_path, cat, arrond=ARROND):
     """).fetchall()
 
 
-def build_proprete_data(con, csv_path, cats=PROPRETE_CATS, arrond=ARROND):
+def build_category_data(con, csv_path, cats, arrond=ARROND):
     """Construit {month: {cat_id: {"t": total, "d": terminees}}} pour toutes les catégories."""
-    proprete_data = {}
+    data = {}
     for cat in cats:
-        for month, total, terminees in query_proprete(con, csv_path, cat, arrond):
-            proprete_data.setdefault(month, {})[cat["id"]] = {"t": total, "d": int(terminees or 0)}
-    return proprete_data
+        for month, total, terminees in query_category(con, csv_path, cat, arrond):
+            data.setdefault(month, {})[cat["id"]] = {"t": total, "d": int(terminees or 0)}
+    return data
+
+
+def build_proprete_data(con, csv_path, cats=PROPRETE_CATS, arrond=ARROND):
+    return build_category_data(con, csv_path, cats, arrond)
+
+
+def build_circulation_data(con, csv_path, cats=CIRCULATION_CATS, arrond=ARROND):
+    return build_category_data(con, csv_path, cats, arrond)
+
+
+def write_category_js(path, prefix, title, cats, data):
+    """Écrit un fichier <prefix>_data.js : mois de référence, catégories, mois, données."""
+    months_sorted = sorted(data.keys())
+    cats_meta = [{"id": c["id"], "label": c["label"], "icon": c["icon"], "color": c["color"]}
+                 for c in cats]
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(f"// Données {title} – Le Plateau-Mont-Royal (généré automatiquement)\n")
+        f.write(f"var {prefix}_REF_MONTH={json.dumps(months_sorted[-1])};\n")
+        f.write(f"var {prefix}_CATS={json.dumps(cats_meta, ensure_ascii=False, separators=(',',':'))};\n")
+        f.write(f"var {prefix}_MONTHS={json.dumps(months_sorted, separators=(',',':'))};\n")
+        f.write(f"var {prefix}_DATA={json.dumps(data, ensure_ascii=False, separators=(',',':'))};\n")
+    print(f"Écrit : {path} ({os.path.getsize(path):,} octets)")
 
 
 def main():
@@ -170,22 +211,11 @@ def main():
     print(f"Écrit : {OUT_PATH} ({os.path.getsize(OUT_PATH):,} octets)")
     print(f"Écrit : {ROWS_PATH} ({os.path.getsize(ROWS_PATH):,} octets)")
 
-    # ── Données propreté ──────────────────────────────────────────────────────
-    proprete_data = build_proprete_data(con, CSV_PATH)
-    all_months_sorted = sorted(proprete_data.keys())
-    ref_month = all_months_sorted[-1]
-    cats_meta = [{"id": c["id"], "label": c["label"], "icon": c["icon"], "color": c["color"]}
-                 for c in PROPRETE_CATS]
-
-    with open(PROPRETE_OUT_PATH, "w", encoding="utf-8") as f:
-        f.write("// Données propreté – Le Plateau-Mont-Royal (généré automatiquement)\n")
-        f.write(f"var PROPRETE_REF_MONTH={json.dumps(ref_month)};\n")
-        f.write(f"var PROPRETE_CATS={json.dumps(cats_meta, ensure_ascii=False, separators=(',',':'))};\n")
-        f.write(f"var PROPRETE_MONTHS={json.dumps(all_months_sorted, separators=(',',':'))};\n")
-        f.write(f"var PROPRETE_DATA={json.dumps(proprete_data, ensure_ascii=False, separators=(',',':'))};\n")
-
-    print(f"Écrit : {PROPRETE_OUT_PATH} ({os.path.getsize(PROPRETE_OUT_PATH):,} octets)")
-
+    # ── Données propreté / circulation ────────────────────────────────────────
+    write_category_js(PROPRETE_OUT_PATH, "PROPRETE", "propreté",
+                      PROPRETE_CATS, build_proprete_data(con, CSV_PATH))
+    write_category_js(CIRCULATION_OUT_PATH, "CIRCULATION", "circulation",
+                      CIRCULATION_CATS, build_circulation_data(con, CSV_PATH))
 
 if __name__ == "__main__":
     main()

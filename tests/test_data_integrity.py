@@ -45,6 +45,11 @@ class TestDataFiles(unittest.TestCase):
         cls.PROPRETE_CATS  = extract_var(proprete_js, "PROPRETE_CATS")
         cls.PROPRETE_MONTHS = extract_var(proprete_js, "PROPRETE_MONTHS")
         cls.PROPRETE_DATA  = extract_var(proprete_js, "PROPRETE_DATA")
+        with open(os.path.join(DOCS_DIR, "circulation_data.js"), encoding="utf-8") as f:
+            circulation_js = f.read()
+        cls.CIRCULATION_CATS   = extract_var(circulation_js, "CIRCULATION_CATS")
+        cls.CIRCULATION_MONTHS = extract_var(circulation_js, "CIRCULATION_MONTHS")
+        cls.CIRCULATION_DATA   = extract_var(circulation_js, "CIRCULATION_DATA")
 
     # ── Lookup tables ───────────────────────────────────────────────────────────
     def test_months_are_sorted_and_unique(self):
@@ -78,16 +83,22 @@ class TestDataFiles(unittest.TestCase):
         missing = [i for i in range(len(self.MONTHS)) if i not in used_months]
         self.assertEqual(missing, [], f"mois sans aucune requête : {[self.MONTHS[i] for i in missing]}")
 
-    # ── Cohérence croisée ROWS <-> PROPRETE_DATA ────────────────────────────────
-    # generate.py calcule ROWS et PROPRETE_DATA via deux requêtes SQL séparées.
-    # Si la liste d'activités d'une catégorie propreté est mal orthographiée ou
+    # ── Cohérence croisée ROWS <-> PROPRETE_DATA / CIRCULATION_DATA ─────────────
+    # generate.py calcule ROWS et les données par catégorie via des requêtes SQL
+    # séparées. Si la liste d'activités d'une catégorie est mal orthographiée ou
     # désynchronisée de ACTIVITIES, ce test le détecte : on recompte les
-    # activités de chaque catégorie à partir de ROWS et on compare à PROPRETE_DATA.
+    # activités de chaque catégorie à partir de ROWS et on compare au fichier JS.
     def test_proprete_data_matches_rows_recount(self):
-        # PROPRETE_CATS (le méta-fichier JS) n'a pas la liste d'activités par
-        # catégorie ; on la reprend de generate.py, la source de vérité.
+        self.assert_matches_rows_recount(gen.PROPRETE_CATS, self.PROPRETE_DATA, "PROPRETE_DATA")
+
+    def test_circulation_data_matches_rows_recount(self):
+        self.assert_matches_rows_recount(gen.CIRCULATION_CATS, self.CIRCULATION_DATA, "CIRCULATION_DATA")
+
+    def assert_matches_rows_recount(self, gen_cats, js_data, name):
+        # Le méta-fichier JS n'a pas la liste d'activités par catégorie ;
+        # on la reprend de generate.py, la source de vérité.
         acti_to_cat = {}
-        for cat in gen.PROPRETE_CATS:
+        for cat in gen_cats:
             for acti in cat["activities"]:
                 acti_to_cat[acti] = cat["id"]
 
@@ -108,30 +119,38 @@ class TestDataFiles(unittest.TestCase):
             if si == term_idx:
                 bucket["d"] += 1
 
-        # Comparer uniquement les mois présents dans PROPRETE_DATA (recount peut
-        # avoir des mois supplémentaires si PROPRETE_DATA a été régénéré séparément).
+        # Comparer uniquement les mois présents dans le fichier JS (recount peut
+        # avoir des mois supplémentaires s'il a été régénéré séparément).
         mismatches = []
-        for month, cats in self.PROPRETE_DATA.items():
+        for month, cats in js_data.items():
             for cat_id, vals in cats.items():
                 got = recount.get(month, {}).get(cat_id, {"t": 0, "d": 0})
                 if got != vals:
                     mismatches.append((month, cat_id, vals, got))
 
         self.assertEqual(mismatches, [],
-                          f"Désaccord ROWS vs PROPRETE_DATA (attendu, recalculé) : {mismatches[:10]}")
+                          f"Désaccord ROWS vs {name} (attendu, recalculé) : {mismatches[:10]}")
 
-    def test_proprete_activities_lists_exist_in_activities_lookup(self):
-        # Si une activité listée dans generate.py:PROPRETE_CATS est mal orthographiée,
-        # elle n'apparaîtra jamais dans ACTIVITIES et la catégorie sera silencieusement vide.
+    def test_category_activities_lists_exist_in_activities_lookup(self):
+        # Si une activité listée dans generate.py (PROPRETE_CATS / CIRCULATION_CATS) est
+        # mal orthographiée, elle n'apparaîtra jamais dans ACTIVITIES et la catégorie
+        # sera silencieusement vide.
         missing = []
-        for cat in gen.PROPRETE_CATS:
+        for cat in gen.PROPRETE_CATS + gen.CIRCULATION_CATS:
             for acti in cat["activities"]:
                 if acti not in self.ACTIVITIES:
                     missing.append((cat["id"], acti))
-        self.assertEqual(missing, [], f"activités propreté absentes de ACTIVITIES : {missing}")
+        self.assertEqual(missing, [], f"activités absentes de ACTIVITIES : {missing}")
 
     def test_proprete_months_are_subset_of_months(self):
         self.assertTrue(set(self.PROPRETE_MONTHS) <= set(self.MONTHS))
+
+    def test_circulation_months_are_subset_of_months(self):
+        self.assertTrue(set(self.CIRCULATION_MONTHS) <= set(self.MONTHS))
+
+    def test_circulation_cats_meta_matches_generate(self):
+        self.assertEqual([c["id"] for c in self.CIRCULATION_CATS],
+                         [c["id"] for c in gen.CIRCULATION_CATS])
 
 
 if __name__ == "__main__":
