@@ -57,9 +57,22 @@ if git diff --staged --quiet; then
   exit 0
 fi
 
+echo "==> Incrémentation de la version..."
+CURRENT_VERSION=$(sed -n 's/.*APP_VERSION *= *"\([0-9.]*\)".*/\1/p' docs/version.js)
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+DATA_DATE=$(date -u +"%Y-%m-%d")
+cat > docs/version.js <<EOF
+// Version de l'application (incrémentée automatiquement à chaque mise à jour des données)
+var APP_VERSION = "${NEW_VERSION}";
+var DATA_UPDATED_AT = "${DATA_DATE}";
+EOF
+git add docs/version.js
+echo "==> Nouvelle version : ${NEW_VERSION} (données du ${DATA_DATE})"
+
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "==> Commit et push (${TIMESTAMP})..."
-git commit -m "chore: mise à jour automatique des données 311 – ${TIMESTAMP}"
+git commit -m "chore: mise à jour automatique des données 311 – ${TIMESTAMP} (v${NEW_VERSION})"
 git push origin main
 
 echo "==> Terminé."

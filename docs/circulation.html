@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Circulation — Le Plateau-Mont-Royal</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="version.js"></script>
   <link rel="stylesheet" href="categorie.css" />
   <link rel="stylesheet" href="glass.css" />
 </head>
@@ -86,6 +87,8 @@
   </div>
 </main>
 
+<footer class="app-footer">Requêtes 311 · v<span id="app-version">—</span> · Données mises à jour le <span id="data-updated">—</span></footer>
+
 <!-- ── Notification settings modal ───────────────────────────────────────── -->
 <div class="modal-overlay" id="notif-modal" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -104,5 +107,9 @@
 
 <script>window.DASH = { dataFile: "circulation_data.js", prefix: "CIRCULATION", notifKey: "311_circ_notif_v1" };</script>
 <script src="categorie.js"></script>
+<script>
+document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
+document.getElementById("data-updated").textContent = typeof DATA_UPDATED_AT !== "undefined" ? DATA_UPDATED_AT : "?";
+</script>
 </body>
 </html>

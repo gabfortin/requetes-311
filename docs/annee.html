@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bilan annuel — Le Plateau-Mont-Royal</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="version.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -164,6 +165,14 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Footer ─────────────────────────────────────────────── */
+    .app-footer {
+      text-align: center;
+      padding: 1.25rem 1rem 2rem;
+      font-size: .75rem;
+      color: var(--text-lt);
+    }
+
     /* ── Mobile ─────────────────────────────────────────────── */
     @media (max-width: 700px) {
       main { padding: .9rem .9rem 3rem; }
@@ -263,6 +272,8 @@
     </div>
   </div>
 </main>
+
+<footer class="app-footer">Requêtes 311 · v<span id="app-version">—</span> · Données mises à jour le <span id="data-updated">—</span></footer>
 
 <script>
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -688,6 +699,9 @@ async function init() {
 }
 
 init();
+
+document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
+document.getElementById("data-updated").textContent = typeof DATA_UPDATED_AT !== "undefined" ? DATA_UPDATED_AT : "?";
 </script>
 </body>
 </html>

@@ -374,6 +374,14 @@
     background: var(--bg); border-radius: 7px; line-height: 1.5;
   }
 
+  /* ── Footer ─────────────────────────────────────────────── */
+  .app-footer {
+    text-align: center;
+    padding: 1.25rem 1rem 2rem;
+    font-size: .75rem;
+    color: var(--text-lt);
+  }
+
   /* 6 catégories : grille 3 × 2 plutôt que 5 + 1 */
 @media (min-width: 1000px) {
   .kpi-grid[data-n="6"] { grid-template-columns: repeat(3, 1fr); }
