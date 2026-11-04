@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bilan annuel — Le Plateau-Mont-Royal</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="chart-theme.js"></script>
   <script src="version.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -184,6 +185,8 @@
     }
   </style>
   <link rel="stylesheet" href="glass.css" />
+  <script>window.goatcounter = {path: function(p) { return location.host + p }}</script>
+  <script data-goatcounter="https://gabfortin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -193,6 +196,10 @@
 <header>
   <div class="logo">Requêtes <span>311</span></div>
   <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
+  <a class="topbar-profile" href="https://gabfortin.com" target="_blank" rel="noopener" title="gabfortin.com">
+    <span class="topbar-profile-name">gabfortin.com</span>
+    <img src="img/gabriel-fortin.jpg" alt="Gabriel Fortin" width="34" height="34">
+  </a>
 </header>
 
 <nav class="tabs">
@@ -273,7 +280,11 @@
   </div>
 </main>
 
-<footer class="app-footer">Requêtes 311 · v<span id="app-version">—</span> · Données mises à jour le <span id="data-updated">—</span></footer>
+<footer class="app-footer">
+  <p>Développé par <a href="https://gabfortin.com" target="_blank" rel="noopener">Gabriel Fortin</a> · <a href="confidentialite.html">Confidentialité</a></p>
+  <p class="app-footer-meta">Requêtes 311 · v<span id="app-version">—</span> · Données mises à jour le <span id="data-updated">—</span></p>
+  <p class="app-footer-meta">Initiative indépendante, ni produite ni approuvée par la Ville de Montréal. Données : <a href="https://donnees.montreal.ca/dataset/requete-311" target="_blank" rel="noopener">Requêtes 311</a>, Ville de Montréal (CC BY 4.0).</p>
+</footer>
 
 <script>
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -300,8 +311,7 @@ function pct(curr, prevVal) {
 }
 
 // ── Chart setup ───────────────────────────────────────────────────────────────
-Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-Chart.defaults.color = "#64748b";
+const CT = applyChartTheme();
 Object.assign(Chart.defaults.plugins.tooltip, {
   backgroundColor: "rgba(15,23,42,0.88)",
   titleColor: "#e2e8f0", bodyColor: "#94a3b8",
@@ -459,17 +469,17 @@ function buildTimeline(curYear, lyYear, cur, lyFull) {
       datasets: [
         {
           label: String(curYear), data: curByMoY,
-          borderColor: "#3f6fb0", backgroundColor: "rgba(63,111,176,.12)",
+          borderColor: CT.accent, backgroundColor: CT.accentA(.12),
           borderWidth: 2.5,
           pointRadius: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? 6 : 3),
           pointHoverRadius: 7,
-          pointBackgroundColor: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#cc9a3c" : "#3f6fb0"),
-          pointBorderColor:     curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? "#cc9a3c" : "#3f6fb0"),
+          pointBackgroundColor: curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? CT.estimate : CT.accent),
+          pointBorderColor:     curByMoY.map((_, i) => (_isCurrentYear && i === _curMoIdx) ? CT.estimate : CT.accent),
           tension: .35, fill: true, spanGaps: false,
         },
         {
           label: String(lyYear), data: lyByMoY,
-          borderColor: "#94a3b8", backgroundColor: "transparent",
+          borderColor: CT.muted2, backgroundColor: "transparent",
           borderWidth: 2, borderDash: [6, 4], pointRadius: 2, pointHoverRadius: 5,
           tension: .35, fill: false, spanGaps: false,
         },
@@ -495,7 +505,7 @@ function buildTimeline(curYear, lyYear, cur, lyFull) {
       },
       scales: {
         x: { grid: { display: false } },
-        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
+        y: { grid: { color: CT.grid }, beginAtZero: true },
       },
     },
   });
@@ -531,8 +541,8 @@ function buildProv(cur, ly, curYear, lyYear) {
     data: {
       labels: PROV_LABELS,
       datasets: [
-        { label: String(curYear), data: cur.byProv, backgroundColor: "#3f6fb0", borderRadius: 4 },
-        { label: String(lyYear),  data: ly.byProv,  backgroundColor: "#cbd5e1", borderRadius: 4 },
+        { label: String(curYear), data: cur.byProv, backgroundColor: CT.accent, borderRadius: 4 },
+        { label: String(lyYear),  data: ly.byProv,  backgroundColor: CT.muted, borderRadius: 4 },
       ],
     },
     options: {
@@ -541,7 +551,7 @@ function buildProv(cur, ly, curYear, lyYear) {
       plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } },
-        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
+        y: { grid: { color: CT.grid }, beginAtZero: true },
       },
     },
   });
@@ -564,7 +574,7 @@ function buildTopActi(cur) {
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
+        x: { grid: { color: CT.grid }, beginAtZero: true },
         y: { grid: { display: false }, ticks: { font: { size: 11 } } },
       },
     },
@@ -607,13 +617,13 @@ function buildHabits(cur) {
   charts.weekday = new Chart(document.getElementById("chart-weekday"), {
     type: "bar",
     data: { labels: WEEKDAYS, datasets: [{ data: cur.byWeekday, borderRadius: 4,
-      backgroundColor: cur.byWeekday.map((_, i) => i >= 5 ? "#c97a35" : "#3f6fb0"),
+      backgroundColor: cur.byWeekday.map((_, i) => i >= 5 ? CT.weekend : CT.accent),
     }]},
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: { legend: { display: false } },
-      scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: CT.grid }, beginAtZero: true } },
     },
   });
 
@@ -622,7 +632,7 @@ function buildHabits(cur) {
   charts.hour = new Chart(document.getElementById("chart-hour"), {
     type: "bar",
     data: { labels: hourLabels, datasets: [{ data: cur.byHour, borderRadius: 2,
-      backgroundColor: cur.byHour.map(v => `rgba(63,111,176,${.25 + v / maxH * .75})`),
+      backgroundColor: cur.byHour.map(v => CT.accentA(.25 + v / maxH * .75)),
     }]},
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -630,7 +640,7 @@ function buildHabits(cur) {
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 9 }, autoSkip: true, maxTicksLimit: 12 } },
-        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
+        y: { grid: { color: CT.grid }, beginAtZero: true },
       },
     },
   });
@@ -690,7 +700,7 @@ async function init() {
     loadingEl.style.display = "none";
   } catch (e) {
     loadingEl.innerHTML = `
-      <div style="text-align:center;color:#64748b;padding:2rem">
+      <div style="text-align:center;color:var(--text-lt);padding:2rem">
         <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
         <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
         <div style="font-size:.85rem">${e.message}</div>

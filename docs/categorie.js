@@ -48,8 +48,7 @@ function trendBadge(pct) {
 }
 
 // ── Chart setup ───────────────────────────────────────────────────────────────
-Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-Chart.defaults.color = "#64748b";
+const CT = applyChartTheme();
 Object.assign(Chart.defaults.plugins.tooltip, {
   backgroundColor: "rgba(15,23,42,0.88)",
   titleColor: "#e2e8f0", bodyColor: "#94a3b8",
@@ -153,9 +152,9 @@ function buildTimeline() {
       borderWidth: 2.5,
       pointRadius: data.map((_, i) => (_isPartial && i === _lastIdx) ? 6 : 2),
       pointHoverRadius: 7,
-      pointBackgroundColor: data.map((_, i) => (_isPartial && i === _lastIdx) ? "#f59e0b" : cat.color),
-      pointBorderColor:     data.map((_, i) => (_isPartial && i === _lastIdx) ? "#f59e0b" : cat.color),
-      pointHoverBackgroundColor: "#fff",
+      pointBackgroundColor: data.map((_, i) => (_isPartial && i === _lastIdx) ? CT.estimate : cat.color),
+      pointBorderColor:     data.map((_, i) => (_isPartial && i === _lastIdx) ? CT.estimate : cat.color),
+      pointHoverBackgroundColor: CT.pointHover,
       pointHoverBorderWidth: 2,
       tension: .35,
       fill: false,
@@ -186,7 +185,7 @@ function buildTimeline() {
       scales: {
         x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 35 } },
         y: {
-          grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: false,
+          grid: { color: CT.grid }, beginAtZero: false,
           title: { display: true, text: timelineIndexed ? "Indice (base 100 = 1er mois)" : "Nombre de requêtes", font: { size: 11 } },
         },
       },
@@ -236,7 +235,7 @@ function buildComparison(ref, m1, m2, y1, y2) {
       },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: { grid: { color: "rgba(100,116,139,.12)" }, beginAtZero: true },
+        y: { grid: { color: CT.grid }, beginAtZero: true },
       },
     },
   });
@@ -284,7 +283,7 @@ function buildCompletion() {
       },
       scales: {
         x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 35 } },
-        y: { grid: { color: "rgba(100,116,139,.12)" }, min: yMin, max: 100, ticks: { callback: v => v + " %" } },
+        y: { grid: { color: CT.grid }, min: yMin, max: 100, ticks: { callback: v => v + " %" } },
       },
     },
   });
@@ -630,7 +629,7 @@ async function init() {
     loadingEl.style.display = "none";
   } catch (e) {
     loadingEl.innerHTML = `
-      <div style="text-align:center;color:#64748b;padding:2rem">
+      <div style="text-align:center;color:var(--text-lt);padding:2rem">
         <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
         <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
         <div style="font-size:.85rem">${e.message}</div>

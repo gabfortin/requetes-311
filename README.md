@@ -60,7 +60,10 @@ docs/
   circulation.html       Section Circulation
   annee.html             Bilan annuel
   categorie.js / .css    Logique et styles communs aux sections par catégorie
-  glass.css              Thème visuel commun
+  glass.css              Thème visuel commun (style de compteurvelo.com, mode clair/sombre)
+  chart-theme.js         Couleurs des graphiques lues depuis glass.css
+  confidentialite.html   Politique de confidentialité
+  img/                   Photo de l'auteur (barre du haut)
   data.js, rows.js       Tables de correspondance et requêtes encodées
   proprete_data.js       Agrégats mensuels — Propreté
   circulation_data.js    Agrégats mensuels — Circulation
@@ -93,6 +96,14 @@ python3 -m unittest tests.test_generate tests.test_data_integrity tests.test_das
 ```
 
 Les tests vérifient l'exactitude de l'encodage sur un jeu de données synthétique, la cohérence interne des fichiers publiés et la concordance entre les données détaillées et les agrégats par catégorie.
+
+## Confidentialité
+
+Aucun cookie ni compte. Les visites sont comptées de façon anonyme avec
+[GoatCounter](https://www.goatcounter.com) ; les réglages de période et
+d'alertes restent dans le `localStorage` du navigateur. Détails :
+[docs/confidentialite.html](docs/confidentialite.html), à mettre à jour (avec
+sa date) si un service externe est ajouté.
 
 ## Contact
 
