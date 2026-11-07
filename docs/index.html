@@ -862,7 +862,7 @@ async function init() {
 init();
 
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
-document.getElementById("data-updated").textContent = typeof DATA_UPDATED_AT !== "undefined" ? DATA_UPDATED_AT : "?";
+document.getElementById("data-updated").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
 </body>
 </html>

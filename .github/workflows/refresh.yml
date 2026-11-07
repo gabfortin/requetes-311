@@ -57,6 +57,9 @@ jobs:
           if git diff --staged --quiet; then
             echo "Aucun changement — rien à pousser."
           else
-            git commit -m "chore: mise à jour automatique des données 311 – $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # Version et date affichées dans le pied de page (docs/version.js)
+            NEW_VERSION=$(bash scripts/bump_version.sh)
+            git add docs/version.js
+            git commit -m "chore: mise à jour automatique des données 311 – $(date -u +%Y-%m-%dT%H:%M:%SZ) (v${NEW_VERSION})"
             git push
           fi

@@ -39,7 +39,9 @@ Les données sont actualisées automatiquement chaque jour à 6 h (UTC) par un f
 1. repère l'adresse du fichier CSV courant au moyen de l'API CKAN du portail ;
 2. télécharge le fichier ;
 3. exécute [`generate.py`](generate.py) ;
-4. publie les fichiers de données régénérés s'ils ont changé.
+4. si les données ont changé : incrémente la version et inscrit la date du jour dans `docs/version.js` ([`scripts/bump_version.sh`](scripts/bump_version.sh), aussi utilisé par `entrypoint.sh`), puis publie les fichiers.
+
+La version et la date de mise à jour s'affichent dans le pied de chaque page.
 
 ### Mises en garde
 
@@ -67,6 +69,8 @@ docs/
   data.js, rows.js       Tables de correspondance et requêtes encodées
   proprete_data.js       Agrégats mensuels — Propreté
   circulation_data.js    Agrégats mensuels — Circulation
+  version.js             Version du site et date de mise à jour des données (écrit par le robot)
+scripts/bump_version.sh  Incrémente la version (robot et Docker)
 tests/                   Tests unitaires et d'intégrité des données
 Dockerfile, entrypoint.sh  Alternative conteneurisée au flux de mise à jour
 ```
