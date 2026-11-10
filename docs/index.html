@@ -42,7 +42,6 @@
     }
     header .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -.5px; }
     header .logo span { color: #7ec8f7; }
-    header .subtitle { font-size: .83rem; opacity: .75; margin-left: auto; }
 
     /* ── Filter bar ─────────────────────────────────────────── */
     .filters {
@@ -271,7 +270,9 @@
 <div class="topbar">
 <header>
   <div class="logo">Requêtes <span>311</span></div>
-  <div class="subtitle">Le Plateau-Mont-Royal &nbsp;·&nbsp; 2022–2026</div>
+  <button type="button" class="gf-info-btn" id="gfInfoBtn" aria-label="À propos de ce site" aria-haspopup="dialog" aria-controls="gfInfoOverlay" title="À propos">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="7.6" r="1.4" fill="currentColor"/><path d="M12 11v6.2" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
+  </button>
   <a class="topbar-profile" href="https://gabfortin.com" target="_blank" rel="noopener" title="gabfortin.com">
     <span class="topbar-profile-name">gabfortin.com</span>
     <img src="img/gabriel-fortin.jpg" alt="Gabriel Fortin" width="34" height="34">
@@ -381,6 +382,23 @@
     </div>
   </div>
 </main>
+
+<div class="gf-info-overlay" id="gfInfoOverlay">
+  <div class="gf-info-panel" role="dialog" aria-modal="true" aria-labelledby="gfInfoTitle">
+    <button type="button" class="gf-info-close" id="gfInfoClose" aria-label="Fermer « À propos »">✕</button>
+    <h2 id="gfInfoTitle">À propos de ce site</h2>
+    <p>Tableau de bord public présentant les requêtes adressées au service 311 de la Ville de Montréal pour l'arrondissement du Plateau-Mont-Royal, de 2022 à aujourd'hui.</p>
+    <ul>
+      <li><strong>Vue d'ensemble</strong> : évolution mensuelle, statuts, principales activités, canaux de contact, répartition horaire et hebdomadaire.</li>
+      <li><strong>Propreté</strong> : suivi mensuel de cinq catégories, dont les dépôts illégaux et les collectes.</li>
+      <li><strong>Circulation</strong> : suivi mensuel de six catégories, des feux de circulation aux aménagements cyclables.</li>
+      <li><strong>Bilan annuel</strong> : l'année en cours comparée à la même période de l'année précédente.</li>
+    </ul>
+    <p><strong>Données :</strong> <a href="https://donnees.montreal.ca/dataset/requete-311" target="_blank" rel="noopener">Requêtes 311</a>, Ville de Montréal (CC BY 4.0), mises à jour chaque jour. Dernière mise à jour : <span data-copie-de="data-updated">—</span>.</p>
+    <p><strong>Initiative indépendante</strong> : ni produite ni approuvée par la Ville de Montréal.</p>
+    <p>Développé par <a href="https://gabfortin.com" target="_blank" rel="noopener">Gabriel Fortin</a> · <a href="confidentialite.html">Confidentialité</a></p>
+  </div>
+</div>
 
 <footer class="app-footer">
   <p>Développé par <a href="https://gabfortin.com" target="_blank" rel="noopener">Gabriel Fortin</a> · <a href="confidentialite.html">Confidentialité</a></p>
@@ -864,5 +882,6 @@ init();
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
 document.getElementById("data-updated").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
+<script src="apropos.js"></script>
 </body>
 </html>

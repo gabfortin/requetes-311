@@ -516,3 +516,88 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
   .topbar, main { animation: none; }
   .kpi:hover { transform: none; }
 }
+
+/* Couleurs du bouton « i » et de la modale « À propos » (bloc commun ci-dessous) */
+:root {
+  --gf-info-1: #1DB860; --gf-info-2: #129a4c; --gf-info-glow: rgba(18,154,76,.6);
+  --gf-info-fond: var(--glass-solid); --gf-info-bordure: var(--glass-border);
+  --gf-info-rayon: var(--r-lg); --gf-info-fermer: var(--glass);
+  --gf-info-titre: var(--text); --gf-info-texte: var(--text-2); --gf-info-lien: var(--accent-strong);
+}
+/* Le « i » se place avant la pastille profil, à droite de la barre. */
+header .gf-info-btn { margin-left: auto; }
+header .gf-info-btn + .topbar-profile { margin-left: 6px; }
+
+/* ── Bouton « i » + modale « À propos » ──────────────────────────────────────
+   Patron des cartes (MAP-DESIGN-SYSTEM.md), sans l'anneau qui pulse : la
+   pulsation est réservée aux cartes (DESIGN-PAGES.md). Bloc identique dans
+   tous les sites hors cartes ; seules les couleurs --gf-info-* (définies
+   juste au-dessus) changent d'un site à l'autre. Script : apropos.js. */
+.gf-info-btn {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  border: none; padding: 0;
+  background: linear-gradient(140deg, var(--gf-info-1), var(--gf-info-2));
+  color: #fff; cursor: pointer;
+  box-shadow: 0 4px 14px -4px var(--gf-info-glow), inset 0 1px 0 rgba(255,255,255,.45);
+  transition: transform .2s cubic-bezier(.22,.68,0,1), box-shadow .2s cubic-bezier(.22,.68,0,1);
+}
+.gf-info-btn svg { width: 16px; height: 16px; }
+.gf-info-btn:hover {
+  box-shadow: 0 8px 22px -4px var(--gf-info-glow), inset 0 1px 0 rgba(255,255,255,.5);
+  transform: translateY(-1px) scale(1.1);
+}
+.gf-info-btn:active { transform: scale(.94); }
+.gf-info-btn:focus-visible { outline: 2px solid var(--gf-info-2); outline-offset: 3px; }
+.gf-info-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(10,16,13,.45);
+  -webkit-backdrop-filter: blur(8px) saturate(140%); backdrop-filter: blur(8px) saturate(140%);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .25s ease, visibility 0s .25s;
+}
+.gf-info-overlay.open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .25s ease, visibility 0s; }
+.gf-info-panel {
+  position: relative; width: min(480px, 100%); max-height: min(84vh, 680px); overflow-y: auto;
+  background: var(--gf-info-fond);
+  border: 1px solid var(--gf-info-bordure); border-radius: var(--gf-info-rayon);
+  box-shadow: 0 24px 60px -16px rgba(0,0,0,.35);
+  padding: 30px 26px 26px; text-align: left;
+  transform: scale(.94) translateY(8px); opacity: 0;
+  transition: transform .28s cubic-bezier(.22,.68,0,1), opacity .28s cubic-bezier(.22,.68,0,1);
+}
+.gf-info-overlay.open .gf-info-panel { transform: none; opacity: 1; }
+.gf-info-panel h2 {
+  display: block; margin: 0 0 12px; padding-right: 36px;
+  font-size: 1.25rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; color: var(--gf-info-titre);
+}
+.gf-info-panel h2::before, .gf-info-panel h2::after { content: none; display: none; }
+.gf-info-panel p, .gf-info-panel li { font-size: .88rem; line-height: 1.6; color: var(--gf-info-texte); }
+.gf-info-panel p { margin: 0 0 14px; }
+.gf-info-panel p:last-child { margin-bottom: 0; }
+.gf-info-panel ul { margin: 0 0 14px; padding-left: 20px; }
+.gf-info-panel li + li { margin-top: 4px; }
+.gf-info-panel a { color: var(--gf-info-lien); font-weight: 600; text-decoration: none; }
+.gf-info-panel a:hover { text-decoration: underline; }
+.gf-info-panel strong { color: var(--gf-info-titre); }
+.gf-info-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--gf-info-bordure); background: var(--gf-info-fermer);
+  color: var(--gf-info-titre); cursor: pointer; font: inherit; font-size: 14px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .18s ease;
+}
+.gf-info-close:hover { transform: scale(1.08); }
+@media (max-width: 760px) {
+  .gf-info-btn { width: 28px; height: 28px; }
+  .gf-info-btn svg { width: 14px; height: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gf-info-btn, .gf-info-panel { transition: none; }
+  .gf-info-btn:hover { transform: none; }
+  .gf-info-panel { transform: none; }
+}
+@media print { .gf-info-btn, .gf-info-overlay { display: none !important; } }
