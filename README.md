@@ -1,114 +1,155 @@
 # Requêtes 311 — Le Plateau-Mont-Royal
 
-Tableau de bord public présentant les requêtes adressées au service 311 de la Ville de Montréal pour l'arrondissement du Plateau-Mont-Royal, de 2022 à aujourd'hui.
+Tableau de bord public des requêtes adressées au service 311 de la Ville de
+Montréal pour l'arrondissement du Plateau-Mont-Royal, de 2022 à aujourd'hui :
+volume, nature des demandes, délais de traitement et évolution dans le temps.
+Pour les citoyen·nes, les élu·es, le personnel municipal et toute personne
+intéressée par la qualité des services de proximité.
 
-**Consultation en ligne :** <https://311.gabfortin.com>
+**En ligne :** [311.gabfortin.com](https://311.gabfortin.com)
 
-## Objet
+## Contenu
 
-Ce projet vise à rendre plus accessibles les données ouvertes du 311 en offrant une lecture synthétique de l'activité de l'arrondissement : volume des requêtes, nature des demandes, délais de traitement et évolution dans le temps. Il s'adresse aux citoyens, aux élus, au personnel municipal et à toute personne intéressée par la qualité des services de proximité.
-
-## Contenu du tableau de bord
-
-| Section | Description |
+| Section | Ce qu'elle montre |
 |---|---|
 | **Vue d'ensemble** | Portrait global, filtrable par année, type de requête (requête, plainte, commentaire) et activité : évolution mensuelle, statuts, principales activités, canaux de contact, répartition horaire et hebdomadaire. |
 | **Propreté** | Suivi mensuel de cinq catégories : dépôts illégaux, nettoyage du domaine public, collecte des ordures, du recyclage et des matières organiques. |
 | **Circulation** | Suivi mensuel de six catégories : études de circulation, feux de circulation, signalisation, marquage au sol, aménagements cyclables, chaussée et trottoirs. |
-| **Bilan annuel** | Comparaison de l'année en cours avec la même période de l'année précédente. |
+| **Bilan annuel** | L'année en cours comparée à la même période de l'année précédente. |
 
-Pour chaque catégorie des sections Propreté et Circulation, le tableau présente :
+Pour chaque catégorie de Propreté et de Circulation : le nombre de requêtes du
+mois de référence et sa variation (mois précédent, il y a deux mois, mêmes
+mois des deux années précédentes), le cumul de l'année comparé à la même
+période de l'année précédente, le total de l'année précédente et le taux de
+complétion (part des requêtes au statut « Terminée »). Ces sections permettent
+aussi de configurer des alertes de seuil, gardées dans le navigateur.
 
-- le nombre de requêtes du mois de référence et sa variation par rapport au mois précédent, à il y a deux mois et aux mêmes mois des deux années précédentes ;
-- le cumul de l'année en cours, comparé à la même période de l'année précédente ;
-- le total de l'année précédente ;
-- le taux de complétion, soit la proportion des requêtes au statut « Terminée ».
+## Données
 
-Ces sections permettent également de configurer des alertes de seuil, enregistrées localement dans le navigateur de l'utilisateur.
+### Sources
 
-## Source des données
-
-Les données proviennent du jeu de données **[Requêtes 311](https://donnees.montreal.ca/dataset/requete-311)** publié par la Ville de Montréal sur son portail de données ouvertes, sous licence [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.fr).
-
-Seules les requêtes dont l'arrondissement est « Le Plateau-Mont-Royal » sont retenues.
+| Source | Producteur, licence | Utilisée pour |
+|---|---|---|
+| [Requêtes 311](https://donnees.montreal.ca/dataset/requete-311) | Ville de Montréal, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.fr) | Tout le site : seules les requêtes de l'arrondissement « Le Plateau-Mont-Royal » sont retenues |
 
 ### Mise à jour
 
-Les données sont actualisées automatiquement chaque jour à 6 h (UTC) par un flux GitHub Actions ([`.github/workflows/refresh.yml`](.github/workflows/refresh.yml)) qui :
+**Automatique**, chaque jour à 6 h (UTC), par
+[`.github/workflows/refresh.yml`](.github/workflows/refresh.yml) :
 
-1. repère l'adresse du fichier CSV courant au moyen de l'API CKAN du portail ;
+1. trouve l'adresse du fichier CSV courant avec l'API CKAN du portail ;
 2. télécharge le fichier ;
-3. exécute [`generate.py`](generate.py) ;
-4. si les données ont changé : incrémente la version et inscrit la date du jour dans `docs/version.js` ([`scripts/bump_version.sh`](scripts/bump_version.sh), aussi utilisé par `entrypoint.sh`), puis publie les fichiers.
+3. lance [`generate.py`](generate.py) ;
+4. si les données ont changé : ajoute 1 à z de la version et inscrit la date
+   du jour dans `docs/version.js` ([`scripts/bump_version.sh`](scripts/bump_version.sh),
+   aussi utilisé par `entrypoint.sh`), commite
+   (`data: mise à jour quotidienne (AAAA-MM-JJ, vX.Y.Z)`) et publie.
 
-La version et la date de mise à jour s'affichent dans le pied de chaque page.
+La date des données s'affiche sous la barre du haut de chaque page, la
+version dans le bas de page.
+
+**À la main**, avec le CSV téléchargé depuis le portail et enregistré sous
+`requetes311.csv` :
+
+```bash
+pip install -r requirements.txt
+python3 generate.py
+```
+
+Une alternative conteneurisée au robot existe (`Dockerfile`, `entrypoint.sh`).
 
 ### Mises en garde
 
-- Le mois en cours est généralement incomplet. Dans les graphiques d'évolution, sa valeur est extrapolée au prorata des jours écoulés et signalée comme une estimation.
-- Le statut d'une requête peut évoluer après sa création. Les taux de complétion des mois récents sont donc appelés à augmenter.
-- Le regroupement des activités en catégories relève de choix éditoriaux propres à ce projet. Il ne correspond pas nécessairement à la classification administrative de la Ville.
-- Ce projet est une initiative indépendante. Il n'est ni produit ni approuvé par la Ville de Montréal.
-
-## Architecture
-
-Le site est entièrement statique et hébergé sur GitHub Pages à partir du répertoire `docs/`. Le filtrage et l'agrégation s'effectuent dans le navigateur.
-
-```
-generate.py              Extraction et encodage des données (DuckDB)
-docs/
-  index.html             Vue d'ensemble
-  proprete.html          Section Propreté
-  circulation.html       Section Circulation
-  annee.html             Bilan annuel
-  categorie.js / .css    Logique et styles communs aux sections par catégorie
-  glass.css              Thème visuel commun (style de compteurvelo.com, mode clair/sombre)
-  chart-theme.js         Couleurs des graphiques lues depuis glass.css
-  confidentialite.html   Politique de confidentialité
-  img/                   Photo de l'auteur (barre du haut)
-  data.js, rows.js       Tables de correspondance et requêtes encodées
-  proprete_data.js       Agrégats mensuels — Propreté
-  circulation_data.js    Agrégats mensuels — Circulation
-  version.js             Version du site et date de mise à jour des données (écrit par le robot)
-scripts/bump_version.sh  Incrémente la version (robot et Docker)
-tests/                   Tests unitaires et d'intégrité des données
-Dockerfile, entrypoint.sh  Alternative conteneurisée au flux de mise à jour
-```
-
-Les catégories et les activités qu'elles regroupent sont définies dans `generate.py` (`PROPRETE_CATS` et `CIRCULATION_CATS`).
+- Le mois en cours est généralement incomplet. Dans les graphiques
+  d'évolution, sa valeur est extrapolée au prorata des jours écoulés et
+  signalée comme une estimation.
+- Le statut d'une requête peut évoluer après sa création : les taux de
+  complétion des mois récents sont appelés à augmenter.
+- Le regroupement des activités en catégories relève de choix éditoriaux
+  propres à ce projet. Il ne correspond pas nécessairement à la
+  classification administrative de la Ville. Les catégories et les activités
+  qu'elles regroupent sont définies dans `generate.py` (`PROPRETE_CATS` et
+  `CIRCULATION_CATS`).
+- Initiative indépendante : ni produite ni approuvée par la Ville de Montréal.
 
 ## Utilisation locale
 
 **Prérequis :** Python 3.9 ou plus récent.
 
 ```bash
-pip install -r requirements.txt
-
-# Télécharger le fichier CSV depuis le portail et l'enregistrer sous requetes311.csv, puis :
-python3 generate.py
-
-# Servir le site localement
-python3 -m http.server 8000 --directory docs
+python3 -m http.server 8000 --directory docs   # http://localhost:8000
 ```
 
-Le site est alors accessible à l'adresse <http://localhost:8000>. Un serveur HTTP est nécessaire, car les pages chargent leurs données par requête réseau.
+Un serveur est nécessaire : les pages chargent leurs données par requête réseau.
 
-### Tests
+## Tests
 
 ```bash
 python3 -m unittest tests.test_generate tests.test_data_integrity tests.test_dashboard_aggregation
 ```
 
-Les tests vérifient l'exactitude de l'encodage sur un jeu de données synthétique, la cohérence interne des fichiers publiés et la concordance entre les données détaillées et les agrégats par catégorie.
+- `test_generate` : exactitude de l'encodage, sur un jeu de données synthétique ;
+- `test_data_integrity` : cohérence interne des fichiers publiés ;
+- `test_dashboard_aggregation` : concordance entre les données détaillées et
+  les agrégats par catégorie.
+
+## Architecture
+
+```
+requetes311.csv → generate.py (DuckDB) → docs/*_data.js, data.js, rows.js → pages de docs/ (statiques)
+```
+
+Le site est entièrement statique, servi depuis `docs/`. Le filtrage et
+l'agrégation se font dans le navigateur.
+
+| Fichier | Rôle |
+|---|---|
+| `generate.py` | Extraction et encodage des données (DuckDB) |
+| `docs/index.html` | Vue d'ensemble |
+| `docs/proprete.html`, `docs/circulation.html` | Sections par catégorie |
+| `docs/annee.html` | Bilan annuel |
+| `docs/categorie.js`, `docs/categorie.css` | Logique et styles communs aux sections par catégorie |
+| `docs/glass.css` | Thème visuel (style B, comme compteurvelo.com), mode clair et sombre |
+| `docs/chart-theme.js` | Couleurs des graphiques lues depuis `glass.css` |
+| `docs/apropos.js` | Bouton « i » et fenêtre « À propos » (composant commun) |
+| `docs/confidentialite.html` | Politique de confidentialité |
+| `docs/data.js`, `docs/rows.js` | Tables de correspondance et requêtes encodées (générés) |
+| `docs/proprete_data.js`, `docs/circulation_data.js` | Agrégats mensuels par catégorie (générés) |
+| `docs/version.js` | Version du site et date des données (écrit par le robot et par le hook de version) |
+| `docs/img/` | Photo de l'auteur (barre du haut) |
+| `scripts/bump_version.sh` | Ajoute 1 à z de la version (robot et Docker) |
+| `tests/` | Tests unitaires et d'intégrité des données |
+| `Dockerfile`, `entrypoint.sh` | Alternative conteneurisée au robot |
+
+Style B de [DESIGN-PAGES.md](../DESIGN-PAGES.md). Composants communs :
+`.communs.json`.
+
+## Publication
+
+GitHub Pages, branche `main`, dossier `docs/` (domaine dans `docs/CNAME`).
+Version x.y.z et `?v=` écrits par le hook de commit (`.version.json`). Le robot
+a besoin de *Settings → Actions → General → Workflow permissions → Read and
+write permissions*.
 
 ## Confidentialité
 
-Aucun cookie ni compte. Les visites sont comptées de façon anonyme avec
-[GoatCounter](https://www.goatcounter.com) ; les réglages de période et
-d'alertes restent dans le `localStorage` du navigateur. Détails :
-[docs/confidentialite.html](docs/confidentialite.html), à mettre à jour (avec
-sa date) si un service externe est ajouté.
+Aucun cookie ni compte.
 
-## Contact
+| Quand | Ce qui est envoyé | À qui |
+|---|---|---|
+| Chaque visite | Page, site d'origine, appareil, pays | GoatCounter (mesure d'audience anonyme) |
 
-Toute question ou suggestion peut être soumise au moyen des [*issues*](https://github.com/gabfortin/requetes-311/issues) du dépôt.
+Les réglages de période et d'alertes restent dans le `localStorage` du
+navigateur. Détails : [docs/confidentialite.html](docs/confidentialite.html),
+à mettre à jour (avec sa date) si un service externe est ajouté.
+
+## Crédits
+
+- [Chart.js](https://www.chartjs.org) 4.4.4 (MIT), chargé depuis jsDelivr
+- [DuckDB](https://duckdb.org) (MIT), pour `generate.py`
+- Données © Ville de Montréal (CC BY 4.0)
+
+## Auteur
+
+Développé par [Gabriel Fortin](https://gabfortin.com). Questions et
+suggestions : [issues](https://github.com/gabfortin/requetes-311/issues).
