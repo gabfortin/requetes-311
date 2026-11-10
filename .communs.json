@@ -1,0 +1,10 @@
+{
+  "fichiers": {
+    "docs/apropos.js": "apropos.js"
+  },
+  "blocs": {
+    "docs/glass.css": [
+      "apropos.css"
+    ]
+  }
+}

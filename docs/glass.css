@@ -259,6 +259,9 @@ header .logo {
   color: transparent;
 }
 header .logo span { color: inherit; }
+/* Emoji de la marque, hors du dégradé du logo (sinon il devient transparent),
+   comme les marques du style D (🚍, ♻️, 🛠️) : DESIGN-PAGES.md. */
+header .logo-icone { font-size: 1.35rem; line-height: 1; margin-right: -.35rem; }
 header .subtitle { opacity: 1; color: var(--text-2); font-weight: 400; font-size: 13px; }
 
 .tabs {
@@ -516,6 +519,19 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
   .topbar, main { animation: none; }
   .kpi:hover { transform: none; }
 }
+
+/* Fraîcheur des données : sous la barre du haut, point vert (comme le style D) */
+.freshness {
+  display: flex; align-items: center; gap: 8px;
+  max-width: calc(1400px - 3rem); width: calc(100% - 3rem);
+  margin: 14px auto 0; padding: 0 .4rem;
+  font-size: 13px; color: var(--muted);
+}
+.freshness::before {
+  content: ""; flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+@media (max-width: 700px) { .freshness { width: calc(100% - 1.5rem); font-size: 12px; } }
 
 /* Couleurs du bouton « i » et de la modale « À propos » (bloc commun ci-dessous) */
 :root {

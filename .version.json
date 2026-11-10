@@ -1,0 +1,5 @@
+{
+  "fichier": "docs/version.js",
+  "donnees": ["docs/data.js", "docs/rows.js", "docs/proprete_data.js", "docs/circulation_data.js", "data/"],
+  "pages": ["docs/index.html", "docs/proprete.html", "docs/circulation.html", "docs/annee.html", "docs/confidentialite.html"]
+}

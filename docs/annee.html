@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bilan annuel — Le Plateau-Mont-Royal</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="chart-theme.js"></script>
-  <script src="version.js"></script>
+  <script src="chart-theme.js?v=1.1.0"></script>
+  <script src="version.js?v=1.1.0"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -183,7 +183,7 @@
       .chart-wrap.short  { height: 190px; }
     }
   </style>
-  <link rel="stylesheet" href="glass.css" />
+  <link rel="stylesheet" href="glass.css?v=1.1.0" />
   <script>window.goatcounter = {path: function(p) { return location.host + p }}</script>
   <script data-goatcounter="https://gabfortin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -193,6 +193,7 @@
 
 <div class="topbar">
 <header>
+  <span class="logo-icone" aria-hidden="true">📞</span>
   <div class="logo">Requêtes <span>311</span></div>
   <button type="button" class="gf-info-btn" id="gfInfoBtn" aria-label="À propos de ce site" aria-haspopup="dialog" aria-controls="gfInfoOverlay" title="À propos">
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="7.6" r="1.4" fill="currentColor"/><path d="M12 11v6.2" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
@@ -210,6 +211,8 @@
   <a class="tab active" href="annee.html" aria-current="page">📅 Bilan annuel</a>
 </nav>
 </div>
+
+<p class="freshness" id="fraicheur">Données à jour au <span id="fraicheur-date">—</span> · mises à jour automatiquement chaque jour</p>
 
 <main>
   <!-- Period banner -->
@@ -292,16 +295,16 @@
       <li><strong>Circulation</strong> : suivi mensuel de six catégories, des feux de circulation aux aménagements cyclables.</li>
       <li><strong>Bilan annuel</strong> : l'année en cours comparée à la même période de l'année précédente.</li>
     </ul>
-    <p><strong>Données :</strong> <a href="https://donnees.montreal.ca/dataset/requete-311" target="_blank" rel="noopener">Requêtes 311</a>, Ville de Montréal (CC BY 4.0), mises à jour chaque jour. Dernière mise à jour : <span data-copie-de="data-updated">—</span>.</p>
+    <p><strong>Données :</strong> <a href="https://donnees.montreal.ca/dataset/requete-311" target="_blank" rel="noopener">Requêtes 311</a>, Ville de Montréal (CC BY 4.0), mises à jour chaque jour. Dernière mise à jour : <span data-copie-de="fraicheur-date">—</span>.</p>
     <p><strong>Initiative indépendante</strong> : ni produite ni approuvée par la Ville de Montréal.</p>
     <p>Développé par <a href="https://gabfortin.com" target="_blank" rel="noopener">Gabriel Fortin</a> · <a href="confidentialite.html">Confidentialité</a></p>
   </div>
 </div>
 
 <footer class="app-footer">
-  <p>Développé par <a href="https://gabfortin.com" target="_blank" rel="noopener">Gabriel Fortin</a> · <a href="confidentialite.html">Confidentialité</a></p>
-  <p class="app-footer-meta">Requêtes 311 · v<span id="app-version">—</span> · Données mises à jour le <span id="data-updated">—</span></p>
-  <p class="app-footer-meta">Initiative indépendante, ni produite ni approuvée par la Ville de Montréal. Données : <a href="https://donnees.montreal.ca/dataset/requete-311" target="_blank" rel="noopener">Requêtes 311</a>, Ville de Montréal (CC BY 4.0).</p>
+  <p class="app-footer-meta">Données : <a href="https://donnees.montreal.ca/dataset/requete-311" target="_blank" rel="noopener">Requêtes 311</a>, Ville de Montréal (CC BY 4.0).</p>
+  <p class="app-footer-meta">Initiative indépendante : ni produite ni approuvée par la Ville de Montréal.</p>
+  <p>Développé par <a href="https://gabfortin.com" target="_blank" rel="noopener">Gabriel Fortin</a> · <a href="confidentialite.html">Confidentialité</a> · v<span id="app-version">—</span></p>
 </footer>
 
 <script>
@@ -729,8 +732,8 @@ async function init() {
 init();
 
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
-document.getElementById("data-updated").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
+document.getElementById("fraicheur-date").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
-<script src="apropos.js"></script>
+<script src="apropos.js?v=1.1.0"></script>
 </body>
 </html>
