@@ -626,14 +626,9 @@ async function init() {
       buildTimeline();
     });
 
-    loadingEl.style.display = "none";
+    Chargement.fermer(loadingEl, document.querySelector("main"));
   } catch (e) {
-    loadingEl.innerHTML = `
-      <div style="text-align:center;color:var(--text-lt);padding:2rem">
-        <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
-        <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
-        <div style="font-size:.85rem">${e.message}</div>
-      </div>`;
+    Chargement.erreur(loadingEl, "Impossible de charger les données", e.message);
   }
 }
 

@@ -110,6 +110,7 @@ l'agrégation se font dans le navigateur.
 | `docs/annee.html` | Bilan annuel |
 | `docs/categorie.js`, `docs/categorie.css` | Logique et styles communs aux sections par catégorie |
 | `docs/glass.css` | Thème visuel (style B, comme compteurvelo.com), mode clair et sombre |
+| `docs/chargement.js`, `docs/chargement.css`, `docs/chargement-fiches.css` | Écran d'attente : base commune (copie de `outils/communs/`) et scène (fiches 311) |
 | `docs/chart-theme.js` | Couleurs des graphiques lues depuis `glass.css` |
 | `docs/apropos.js` | Bouton « i » et fenêtre « À propos » (composant commun) |
 | `docs/confidentialite.html` | Politique de confidentialité |
@@ -145,7 +146,7 @@ navigateur. Détails : [docs/confidentialite.html](docs/confidentialite.html),
 
 ## Crédits
 
-- [Chart.js](https://www.chartjs.org) 4.4.4 (MIT), chargé depuis jsDelivr
+- [Chart.js](https://www.chartjs.org) 4.4.4 (MIT), hébergé dans `docs/vendor/chartjs/` (modèle commun `outils/communs/chartjs/`) ; police Inter hébergée dans `docs/fonts/`
 - [DuckDB](https://duckdb.org) (MIT), pour `generate.py`
 - Données © Ville de Montréal (CC BY 4.0)
 

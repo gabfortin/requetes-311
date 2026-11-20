@@ -4,17 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Circulation — Le Plateau-Mont-Royal</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="chart-theme.js?v=1.1.0"></script>
-  <script src="version.js?v=1.1.0"></script>
-  <link rel="stylesheet" href="categorie.css?v=1.1.0" />
-  <link rel="stylesheet" href="glass.css?v=1.1.0" />
+  <script src="vendor/chartjs/chart.umd.min.js?v=1.2.0"></script>
+  <script src="chargement.js?v=1.2.0"></script>
+  <script src="chart-theme.js?v=1.2.0"></script>
+  <script src="version.js?v=1.2.0"></script>
+  <link rel="stylesheet" href="categorie.css?v=1.2.0" />
+  <link rel="stylesheet" href="chargement.css?v=1.2.0" />
+  <link rel="stylesheet" href="chargement-fiches.css?v=1.2.0" />
+  <link rel="stylesheet" href="glass.css?v=1.2.0" />
   <script>window.goatcounter = {path: function(p) { return location.host + p }}</script>
   <script data-goatcounter="https://gabfortin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div>Chargement des données…</div>
+<!-- Écran d'attente : base commune chargement.css (outils/communs/), scène chargement-fiches.css -->
+<div id="loading" class="ch ch-voile ch-fiches" role="status" aria-live="polite">
+  <div class="ch-carte">
+    <div class="ch-scene" aria-hidden="true"><span class="f-tel">☎</span><span class="f-casier"></span><span class="f-fiche f-1"></span><span class="f-fiche f-2"></span><span class="f-fiche f-3"></span><span class="f-onde"></span><span class="f-tampon">311</span></div>
+    <div class="ch-texte">
+      <p class="ch-titre">Chargement des requêtes 311…</p>
+      <p class="ch-detail">Circulation</p>
+      <span class="ch-barre" aria-hidden="true"><i></i></span>
+    </div>
+  </div>
+</div>
 
 <div class="topbar">
 <header>
@@ -139,11 +152,11 @@
 </div>
 
 <script>window.DASH = { dataFile: "circulation_data.js", prefix: "CIRCULATION", notifKey: "311_circ_notif_v1" };</script>
-<script src="categorie.js?v=1.1.0"></script>
+<script src="categorie.js?v=1.2.0"></script>
 <script>
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
 document.getElementById("fraicheur-date").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
-<script src="apropos.js?v=1.1.0"></script>
+<script src="apropos.js?v=1.2.0"></script>
 </body>
 </html>

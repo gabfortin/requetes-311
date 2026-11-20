@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Requêtes 311 — Le Plateau-Mont-Royal</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="chart-theme.js?v=1.1.0"></script>
-  <script src="version.js?v=1.1.0"></script>
+  <script src="vendor/chartjs/chart.umd.min.js?v=1.2.0"></script>
+  <script src="chargement.js?v=1.2.0"></script>
+  <script src="chart-theme.js?v=1.2.0"></script>
+  <script src="version.js?v=1.2.0"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -224,19 +225,6 @@
     .tab:hover { color: var(--text); }
     .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
 
-    /* ── Loading overlay ────────────────────────────────────── */
-    #loading {
-      position: fixed; inset: 0; background: rgba(244,246,250,.92);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 1rem; z-index: 999; font-size: .93rem; color: var(--text-lt);
-    }
-    .spinner {
-      width: 34px; height: 34px; border: 3px solid var(--border);
-      border-top-color: var(--blue); border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
     /* ── Footer ─────────────────────────────────────────────── */
     .app-footer {
       text-align: center;
@@ -259,13 +247,25 @@
       #acti-dropdown { width: calc(100vw - 2rem); max-width: 340px; }
     }
   </style>
-  <link rel="stylesheet" href="glass.css?v=1.1.0" />
+  <link rel="stylesheet" href="chargement.css?v=1.2.0" />
+  <link rel="stylesheet" href="chargement-fiches.css?v=1.2.0" />
+  <link rel="stylesheet" href="glass.css?v=1.2.0" />
   <script>window.goatcounter = {path: function(p) { return location.host + p }}</script>
   <script data-goatcounter="https://gabfortin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div>Chargement des données…</div>
+<!-- Écran d'attente : base commune chargement.css (outils/communs/), scène chargement-fiches.css -->
+<div id="loading" class="ch ch-voile ch-fiches" role="status" aria-live="polite">
+  <div class="ch-carte">
+    <div class="ch-scene" aria-hidden="true"><span class="f-tel">☎</span><span class="f-casier"></span><span class="f-fiche f-1"></span><span class="f-fiche f-2"></span><span class="f-fiche f-3"></span><span class="f-onde"></span><span class="f-tampon">311</span></div>
+    <div class="ch-texte">
+      <p class="ch-titre">Chargement des requêtes 311…</p>
+      <p class="ch-detail">Toutes les requêtes du Plateau-Mont-Royal</p>
+      <span class="ch-barre" aria-hidden="true"><i></i></span>
+    </div>
+  </div>
+</div>
 
 <div class="topbar">
 <header>
@@ -868,15 +868,10 @@ async function init() {
     for (const [,, ai] of ROWS) if (ai >= 0) ACTI_TOTAL[ai]++;
     TERM_IDX = STATUSES.indexOf("Terminée");
 
-    loadingEl.style.display = "none";
+    Chargement.fermer(loadingEl, document.querySelector("main"));
     render();
   } catch (e) {
-    loadingEl.innerHTML = `
-      <div style="text-align:center;color:var(--text-lt);padding:2rem">
-        <div style="font-size:2rem;margin-bottom:.5rem">⚠️</div>
-        <div style="font-weight:600;margin-bottom:.25rem">Impossible de charger les données</div>
-        <div style="font-size:.85rem">${e.message}</div>
-      </div>`;
+    Chargement.erreur(loadingEl, "Impossible de charger les données", e.message);
   }
 }
 
@@ -885,6 +880,6 @@ init();
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
 document.getElementById("fraicheur-date").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
-<script src="apropos.js?v=1.1.0"></script>
+<script src="apropos.js?v=1.2.0"></script>
 </body>
 </html>

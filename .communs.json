@@ -1,6 +1,17 @@
 {
   "fichiers": {
-    "docs/apropos.js": "apropos.js"
+    "docs/apropos.js": "apropos.js",
+    "docs/fonts/inter-latin.woff2": "polices/inter-latin.woff2",
+    "docs/fonts/inter-latin-ext.woff2": "polices/inter-latin-ext.woff2",
+    "docs/fonts/poppins-600-latin.woff2": "polices/poppins-600-latin.woff2",
+    "docs/fonts/poppins-700-latin.woff2": "polices/poppins-700-latin.woff2",
+    "docs/fonts/OFL-Inter.txt": "polices/OFL-Inter.txt",
+    "docs/fonts/OFL-Poppins.txt": "polices/OFL-Poppins.txt",
+    "docs/fonts/polices.css": "polices/polices.css",
+    "docs/vendor/chartjs/chart.umd.min.js": "chartjs/chart.umd.min.js",
+    "docs/vendor/chartjs/LICENSE-chartjs.md": "chartjs/LICENSE-chartjs.md",
+    "docs/chargement.css": "chargement.css",
+    "docs/chargement.js": "chargement.js"
   },
   "blocs": {
     "docs/glass.css": [

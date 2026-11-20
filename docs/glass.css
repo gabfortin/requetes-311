@@ -11,7 +11,7 @@
    couleurs passent par les jetons ci-dessous, y compris celles des graphiques
    (--chart-*, lues par chart-theme.js).
    ═══════════════════════════════════════════════════════════════════════════ */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("fonts/polices.css");   /* Inter hébergée sur le site (outils/communs/polices/) */
 
 /* ── Jetons : mode clair ─────────────────────────────────────────────────── */
 :root {
@@ -466,11 +466,8 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
 .notif-note { background: var(--glass-soft); border: 1px solid var(--glass-border); color: var(--text-lt); }
 .toggle-track { background: var(--switch-off); }
 
-#loading {
-  background: var(--loading-bg); color: var(--text-2);
-  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-}
-.spinner { border-color: var(--hairline); border-top-color: var(--accent); }
+/* Écran d'attente (#loading) : base commune chargement.css ; ici le fond de la page */
+#loading { background: var(--loading-bg); }
 
 /* ── Signature : pastille profil (barre du haut) et pied de page ────────── */
 .topbar-profile {

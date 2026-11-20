@@ -1,0 +1,56 @@
+/* ── Scène d’attente « requêtes 311 » (base : chargement.css, modèle outils/communs/) ──
+   Le téléphone sonne, des fiches de requête tombent et s'empilent dans le
+   casier, un tampon « 311 » frappe et envoie une onde. */
+.f-casier {
+  left: 18%; right: 18%; bottom: 14%; height: 26%;
+  border: 3px solid var(--ch-accent); border-top: 0; border-radius: 0 0 12px 12px;
+  background: linear-gradient(180deg, transparent, rgba(var(--ch-rgb), .18));
+}
+.f-fiche {
+  left: 27%; width: 46%; height: 13%; border-radius: 4px;
+  background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+  border-left: 5px solid var(--ch-accent);
+  animation: f-tombe 2.4s cubic-bezier(.3, 0, .4, 1) infinite;
+}
+.f-fiche::before, .f-fiche::after {                  /* lignes de texte */
+  content: ""; position: absolute; left: 10%; height: 2px; border-radius: 2px; background: rgba(0, 0, 0, .22);
+}
+.f-fiche::before { top: 32%; width: 60%; } .f-fiche::after { top: 62%; width: 40%; }
+.f-1 { bottom: 16%; animation-delay: 0s; }
+.f-2 { bottom: 25%; animation-delay: .35s; --f-r: -6deg; }
+.f-3 { bottom: 34%; animation-delay: .7s; --f-r: 5deg; }
+.f-tampon {
+  left: 50%; top: 36%; width: 46px; height: 46px; margin: -23px 0 0 -23px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 3px solid #dc2626; color: #dc2626; font: 900 13px/1 inherit; letter-spacing: -.02em;
+  transform: rotate(-14deg);
+  animation: f-tampon 2.4s cubic-bezier(.2, .9, .3, 1.4) infinite;
+}
+.f-onde {
+  left: 50%; top: 36%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%;
+  border: 2px solid #dc2626; opacity: 0; animation: f-onde 2.4s ease-out infinite;
+}
+.f-tel {                                            /* combiné qui sonne */
+  left: 12%; top: 12%; width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 14px;
+  background: var(--ch-accent); color: #fff; box-shadow: 0 0 12px rgba(var(--ch-rgb), .7);
+  animation: f-sonne .6s ease-in-out infinite;
+}
+.f-tel::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(var(--ch-rgb), .6); animation: f-onde-tel 1.2s ease-out infinite; }
+@keyframes f-tombe {
+  0% { transform: translateY(-160%) rotate(var(--f-r, 0deg)) scale(.8); opacity: 0; }
+  10% { opacity: 1; }
+  30% { transform: translateY(0) rotate(var(--f-r, 0deg)) scaleY(.85); }
+  38% { transform: translateY(-14%) rotate(var(--f-r, 0deg)); }
+  46%, 88% { transform: translateY(0) rotate(var(--f-r, 0deg)); opacity: 1; }
+  100% { transform: translateY(0) rotate(var(--f-r, 0deg)); opacity: 0; }
+}
+@keyframes f-tampon {
+  0%, 52% { transform: rotate(-14deg) scale(2.4); opacity: 0; }
+  60% { transform: rotate(-14deg) scale(.92); opacity: 1; }
+  66%, 90% { transform: rotate(-14deg) scale(1); opacity: 1; }
+  100% { transform: rotate(-14deg) scale(1); opacity: 0; }
+}
+@keyframes f-onde { 0%, 58% { transform: scale(.6); opacity: 0; } 62% { opacity: .9; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes f-sonne { 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
+@keyframes f-onde-tel { from { transform: scale(.8); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
