@@ -25,6 +25,7 @@
   --accent-grad:   linear-gradient(180deg, #24c96b, #149a4f);
   --accent-glow:   0 6px 18px -6px rgba(20,154,79,.6), inset 0 1px 0 rgba(255,255,255,.35);
   --title-grad:    linear-gradient(120deg, #0f1f17 30%, #129a4c 100%);
+  --logo-ombre:    0 12px 32px -8px rgba(15,40,28,.35), 0 0 0 1px rgba(255,255,255,.8);
 
   --text:   #0f1f17;
   --text-2: #3f5248;
@@ -99,6 +100,7 @@
     --accent-soft:   rgba(29,184,96,.18);
     --accent-ring:   rgba(29,184,96,.30);
     --title-grad:    linear-gradient(120deg, #e4eee8 30%, #3ddc84 100%);
+    --logo-ombre:    0 12px 32px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.1);
     --text: #e4eee8; --text-2: #b4c4bb; --muted: #8b9d94; --faint: #6c7e75;
     --glass:        rgba(24,33,29,.62);
     --glass-strong: rgba(34,45,40,.82);
@@ -148,6 +150,7 @@
   --accent-soft:   rgba(29,184,96,.18);
   --accent-ring:   rgba(29,184,96,.30);
   --title-grad:    linear-gradient(120deg, #e4eee8 30%, #3ddc84 100%);
+  --logo-ombre:    0 12px 32px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.1);
   --text: #e4eee8; --text-2: #b4c4bb; --muted: #8b9d94; --faint: #6c7e75;
   --glass:        rgba(24,33,29,.62);
   --glass-strong: rgba(34,45,40,.82);
@@ -242,32 +245,88 @@ body::after {
 }
 .card, .kpi, .kpi-card, .chart-card { border-radius: var(--r-lg); }
 
-/* ── Barre du haut (logo + onglets) ──────────────────────────────────────── */
+/* ── Barre du haut : marque à gauche, onglets au centre, groupe « i » + photo
+   à droite, collés à 8 px (même barre partout, DESIGN-PAGES.md, 19 novembre 2026).
+   Téléphone et tablette (≤ 900 px) : marque et groupe en haut, onglets dessous. */
 .topbar {
   position: sticky; top: 10px; z-index: 200;
-  margin: 10px auto 0; max-width: calc(1400px - 3rem); width: calc(100% - 3rem);
+  margin: 10px auto 0; max-width: 1200px; width: calc(100% - 3rem);
   background: var(--topbar-bg);
   border-radius: 18px;
   animation: glass-fade-down .5s var(--ease) both;
 }
 header, .tabs { background: transparent; border: none; }
-header { color: var(--text); padding: .85rem 1.1rem .4rem; }
-header .logo {
-  font-weight: 800; letter-spacing: -.035em;
-  background: var(--title-grad);
-  -webkit-background-clip: text; background-clip: text;
-  color: transparent;
+header {
+  color: var(--text); min-height: 54px; padding: 0 8px 0 10px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: nowrap;
 }
-header .logo span { color: inherit; }
-/* Emoji de la marque, hors du dégradé du logo (sinon il devient transparent),
-   comme les marques du style D (🚍, ♻️, 🛠️) : DESIGN-PAGES.md. */
-header .logo-icone { font-size: 1.35rem; line-height: 1; margin-right: -.35rem; }
+header .marque {
+  flex: 1 1 0; min-width: 0; display: flex; align-items: baseline; padding: 0 10px 0 8px;
+  white-space: nowrap; text-decoration: none;
+  font-weight: 800; font-size: 15px; letter-spacing: -.02em; color: var(--text);
+}
+header .topbar-droite { flex: 1 1 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 header .subtitle { opacity: 1; color: var(--text-2); font-weight: 400; font-size: 13px; }
 
 .tabs {
-  padding: .15rem .5rem .55rem; gap: 2px;
+  flex: 0 1 auto; min-width: 0; display: flex; justify-content: center;
+  padding: 0; gap: 2px;
   overflow-x: auto; scrollbar-width: none;
 }
+.tab-court { display: none; }
+/* Téléphone (comme compteur-velo) : une seule rangée, sans le nom ; libellés courts */
+@media (max-width: 767px) {
+  header { gap: 6px; padding: 0 6px; }
+  header .marque { display: none; }
+  .tabs { flex: 1 1 auto; justify-content: flex-start; }
+  header .topbar-droite { flex: 0 0 auto; gap: 6px; }
+  .tab-long { display: none; }
+  .tab-court { display: inline; }
+}
+
+/* ── En-tête de page (comme compteur-velo) : logo (vue d'ensemble), grand titre,
+   sous-titre, ligne de mise à jour ; le nom de la barre apparaît quand le titre sort ── */
+.site-header {
+  text-align: center; padding: 36px 16px 26px; max-width: 1200px; margin: 0 auto;
+  animation: glass-fade-up .55s var(--ease) both;
+}
+.site-header .logo-accueil {
+  display: block; width: 112px; height: 112px; margin: 0 auto 12px; border-radius: 25px;
+  box-shadow: var(--logo-ombre);
+}
+/* Logo animé ~4 s après l'écran d'attente : animerLogo() (index.html) ajoute .logo-anime,
+   cache les fiches du dessin et fait tomber des copies (.fiche-anim) ; le téléphone sonne sans arrêt. */
+.logo-anime .fiche:not(.fiche-anim) { visibility: hidden; }
+.fiche-anim { transform-box: fill-box; transform-origin: 50% 50%; }
+.logo-anime .tel { transform-box: fill-box; transform-origin: 50% 50%; animation: logo-sonne .5s ease-in-out 8; }
+.logo-anime .tel-onde { transform-box: fill-box; transform-origin: 50% 50%; animation: logo-onde .5s ease-out 8; }
+@keyframes logo-sonne {
+  0%, 50%, 100% { transform: rotate(0); }
+  8%, 24%, 40% { transform: rotate(-14deg); }
+  16%, 32% { transform: rotate(14deg); }
+}
+@keyframes logo-onde { 0% { transform: scale(.75); opacity: .9; } 70%, 100% { transform: scale(1.25); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .logo-anime .tel, .logo-anime .tel-onde { animation: none; }
+}
+
+.site-header h1 {
+  font-size: 40px; font-weight: 800; letter-spacing: -.035em; line-height: 1.15; margin: 0 0 8px;
+  background: var(--title-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.site-header h1 span { color: inherit; }
+.site-header .subtitle { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.5; }
+.site-header .freshness { width: auto; max-width: none; margin: 10px 0 0; padding: 0; }
+@media (max-width: 767px) {
+  .site-header { padding: 26px 8px 18px; }
+  .site-header .logo-accueil { width: 96px; height: 96px; border-radius: 21px; }
+  .site-header h1 { font-size: 28px; }
+  .site-header .subtitle { font-size: 13px; }
+}
+/* « Alertes » (Propreté, Circulation) : action de la page, à côté de « Modifier les périodes »
+   (la barre du haut ne garde que le menu, le « i » et la photo, comme compteur-velo) */
+.period-banner .notif-btn { margin-left: 8px; font-size: .75rem; padding: .2rem .75rem; }
+.period-banner.editing .notif-btn { margin-left: auto; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
   border: none; border-radius: 12px;
@@ -281,11 +340,16 @@ header .subtitle { opacity: 1; color: var(--text-2); font-weight: 400; font-size
   background: var(--tab-active); color: var(--accent-strong); font-weight: 600;
   border: none; box-shadow: var(--tab-active-shadow);
 }
+/* Téléphone : onglets plus serrés pour que les quatre tiennent à côté du « i » et de la photo */
+@media (max-width: 767px) { .tab { padding: 7px 9px; font-size: 12.5px; } }
+@media (max-width: 420px) { .tab { padding: 7px 6px; } }
 
 /* ── Contenu ─────────────────────────────────────────────────────────────── */
-main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both; }
+/* Même largeur que la barre (1 200 px de contenu) : main a 1,5 rem de marge de chaque côté */
+main { max-width: calc(1200px + 3rem) !important; padding-top: .25rem; animation: glass-fade-up .55s .08s var(--ease) both; }
+.filters + main { padding-top: 1rem; }   /* vue d'ensemble : air entre les filtres et les cartes */
 .filters {
-  max-width: calc(1400px - 3rem); width: calc(100% - 3rem);
+  max-width: 1200px; width: calc(100% - 3rem);
   margin: 1rem auto 0; border-radius: var(--r-lg);
   box-shadow: var(--shadow-lg), var(--inner);
   /* Le verre crée un contexte d'empilement : on garde la barre de filtres
@@ -472,7 +536,7 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
 /* ── Signature : pastille profil (barre du haut) et pied de page ────────── */
 .topbar-profile {
   display: flex; align-items: center; gap: 8px;
-  padding: 4px 4px 4px 10px; border-radius: 999px;
+  padding: 2px; border-radius: 999px;
   text-decoration: none; color: var(--text-2);
   font-size: 13px; font-weight: 500;
   transition: color .25s, background .25s;
@@ -484,9 +548,14 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
   transition: box-shadow .25s;
 }
 .topbar-profile:hover img { box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(15,40,28,.15); }
+/* Barre épurée : photo seule ; « gabfortin.com » reste lu par les lecteurs d'écran */
+.topbar-profile-name {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 
 .app-footer {
-  max-width: calc(1400px - 3rem); margin: 30px auto 0;
+  max-width: 1200px; margin: 30px auto 0;
   padding: 16px 10px 28px;
   border-top: 1px solid var(--hairline);
   text-align: center; color: var(--faint); font-size: 12px;
@@ -501,13 +570,8 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
 @media (max-width: 700px) {
   .topbar, .filters { width: calc(100% - 1.5rem); }
   .topbar { position: relative; top: 0; margin-top: .5rem; }
-  header { padding: .7rem 1rem .35rem; }
   header .subtitle { margin-left: 0; width: 100%; order: 3; font-size: .75rem; }
-  .topbar-profile { margin-left: auto; padding: 2px; }
-  .topbar-profile-name { display: none; }
   .topbar-profile img { width: 30px; height: 30px; }
-  .tabs { padding: .15rem .4rem .5rem; }
-  .tab { padding: 7px 11px; font-size: 12.5px; }
   .filters { margin-top: .75rem; }
 }
 
@@ -517,18 +581,101 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
   .kpi:hover { transform: none; }
 }
 
-/* Fraîcheur des données : sous la barre du haut, point vert (comme le style D) */
+/* Fraîcheur des données : sous la barre du haut, point vert, centrée (même format que compteurvelo.com).
+   La phrase est dans un seul <span> : sinon chaque morceau (texte, date) devient une colonne flex. */
 .freshness {
-  display: flex; align-items: center; gap: 8px;
-  max-width: calc(1400px - 3rem); width: calc(100% - 3rem);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  max-width: 1200px; width: calc(100% - 3rem);
   margin: 14px auto 0; padding: 0 .4rem;
-  font-size: 13px; color: var(--muted);
+  font-size: 13px; color: var(--muted); text-align: center;
 }
 .freshness::before {
   content: ""; flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%;
   background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
 }
 @media (max-width: 700px) { .freshness { width: calc(100% - 1.5rem); font-size: 12px; } }
+
+/* ── Icônes des catégories (icones.js) : dessin dans le style de l'icône du site,
+   couleur de la catégorie ; une petite animation au survol de la carte ──────── */
+.ico { display: block; width: 1.45rem; height: 1.45rem; overflow: visible; color: var(--cat-color, var(--accent)); }
+.ico .f { fill: #fff; }
+.ico .t { fill: currentColor; fill-opacity: .16; }
+.ico [class^="i-"], .ico [class*=" i-"] { transform-box: fill-box; transform-origin: 50% 50%; }
+.alert-ico .ico { width: 1.25rem; height: 1.25rem; }
+.alert-cat-icon .ico { width: 1.3rem; height: 1.3rem; }
+.ico .i-sac, .ico .i-poussiere, .ico .i-etincelles { opacity: 0; }
+.ico .i-rouge, .ico .i-jaune { opacity: .22; }
+
+/* points d'appui (en unités du dessin 48 × 48) */
+.ico .i-couvercle { transform-box: view-box; transform-origin: 10px 17px; }
+.ico .i-balai     { transform-box: view-box; transform-origin: 36px 4px; }
+.ico .i-pousse    { transform-origin: 50% 100%; }
+.ico .i-panneau   { transform-box: view-box; transform-origin: 24px 45px; }
+.ico .i-cone      { transform-origin: 50% 100%; }
+.ico .i-barre     { transform-origin: 50% 100%; }
+.ico .i-trophee   { transform-origin: 50% 100%; }
+.ico .i-bulle     { transform-box: view-box; transform-origin: 14px 40px; }
+
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-couvercle { animation: ico-couvercle 1.1s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-sac       { animation: ico-sac 1.1s ease-in; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-balai     { animation: ico-balai .9s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-poussiere { animation: ico-poussiere .9s ease-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-camion    { animation: ico-cahot .3s ease-in-out 3; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-roue      { animation: ico-tour .9s linear; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-route     { animation: ico-defile .9s linear; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-fleches   { animation: ico-recycle 1s cubic-bezier(.5, 0, .2, 1); }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-pousse    { animation: ico-pousse 1s ease-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-loupe     { animation: ico-loupe 1.2s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-vert      { animation: ico-feu-vert 1.8s linear; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-jaune     { animation: ico-feu-jaune 1.8s linear; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-rouge     { animation: ico-feu-rouge 1.8s linear; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-panneau   { animation: ico-oscille 1s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-ligne     { animation: ico-ligne .5s linear 2; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-velo      { animation: ico-avance 1s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-velo .i-roue { animation: ico-tour 1s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-cone      { animation: ico-saut .8s ease-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-barre     { animation: ico-barre .8s cubic-bezier(.3, 1.4, .5, 1) backwards; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-barre:nth-of-type(2) { animation-delay: .1s; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-barre:nth-of-type(3) { animation-delay: .2s; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-cercle    { animation: ico-pouls .7s ease-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-coche     { animation: ico-trace .6s ease-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-rayons    { animation: ico-clignote .3s steps(1, end) 4; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-dome      { animation: ico-gyro .3s steps(1, end) 4; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-bulle     { animation: ico-agite .7s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-tel       { animation: ico-sonne .8s ease-in-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-ondes     { animation: ico-ondes .4s steps(1, end) 2; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-trophee   { animation: ico-saut .8s ease-out; }
+:is(.kpi-card, .alert-card, .alert-banner):hover .i-etincelles { animation: ico-etincelles .9s ease-out; }
+
+@keyframes ico-couvercle { 0%, 100% { transform: none; } 25%, 65% { transform: rotate(-32deg); } }
+@keyframes ico-sac { 0%, 20% { opacity: 0; transform: translateY(-4px); } 30% { opacity: 1; } 30%, 45% { transform: none; } 62% { opacity: 1; transform: translateY(17px); } 70%, 100% { opacity: 0; transform: translateY(17px); } }
+@keyframes ico-balai { 0%, 100% { transform: none; } 30% { transform: rotate(12deg); } 65% { transform: rotate(-7deg); } }
+@keyframes ico-poussiere { 0%, 25% { opacity: 0; transform: none; } 50% { opacity: .8; } 100% { opacity: 0; transform: translate(-4px, -3px); } }
+@keyframes ico-cahot { 50% { transform: translateY(-1.2px); } }
+@keyframes ico-tour { to { transform: rotate(360deg); } }
+@keyframes ico-defile { to { stroke-dashoffset: 22; } }
+@keyframes ico-recycle { to { transform: rotate(120deg); } }
+@keyframes ico-pousse { 0% { transform: scale(.6, .4); } 55% { transform: scale(1.06, 1.12) rotate(4deg); } 80% { transform: rotate(-3deg); } 100% { transform: none; } }
+@keyframes ico-loupe { 0%, 100% { transform: none; } 25% { transform: translate(-2.5px, -1.5px) rotate(-6deg); } 60% { transform: translate(2.5px, 1px) rotate(5deg); } }
+@keyframes ico-feu-vert  { 0%, 30% { opacity: 1; } 32%, 98% { opacity: .22; } 100% { opacity: 1; } }
+@keyframes ico-feu-jaune { 0%, 30% { opacity: .22; } 32%, 55% { opacity: 1; } 57%, 100% { opacity: .22; } }
+@keyframes ico-feu-rouge { 0%, 55% { opacity: .22; } 57%, 98% { opacity: 1; } 100% { opacity: .22; } }
+@keyframes ico-oscille { 0%, 100% { transform: none; } 20% { transform: rotate(-10deg); } 45% { transform: rotate(7deg); } 70% { transform: rotate(-3deg); } }
+@keyframes ico-ligne { to { stroke-dashoffset: -10; } }
+@keyframes ico-avance { 0%, 100% { transform: none; } 45% { transform: translateX(3px); } }
+@keyframes ico-saut { 0%, 100% { transform: none; } 15% { transform: scale(1.08, .88); } 45% { transform: translateY(-5px) rotate(-4deg); } 75% { transform: scale(1.05, .94); } }
+@keyframes ico-barre { from { transform: scaleY(.2); } }
+@keyframes ico-pouls { 40% { transform: scale(1.1); } }
+@keyframes ico-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes ico-clignote { 50% { opacity: .15; } }
+@keyframes ico-gyro { 0% { fill: currentColor; fill-opacity: .45; } 50% { fill: #fff; fill-opacity: 1; } }
+@keyframes ico-agite { 0%, 100% { transform: none; } 15%, 45% { transform: rotate(-8deg); } 30%, 60% { transform: rotate(8deg); } 75% { transform: rotate(-3deg); } }
+@keyframes ico-sonne { 0%, 100% { transform: none; } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40%, 60% { transform: rotate(14deg); } 70% { transform: none; } }
+@keyframes ico-ondes { 50% { opacity: .1; } }
+@keyframes ico-etincelles { 0%, 30% { opacity: 0; transform: scale(.3); } 55% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(.8); } }
+@media (prefers-reduced-motion: reduce) {
+  .ico * { animation: none !important; }
+}
 
 /* Couleurs du bouton « i » et de la modale « À propos » (bloc commun ci-dessous) */
 :root {
@@ -537,9 +684,6 @@ main { padding-top: 1.25rem; animation: glass-fade-up .55s .08s var(--ease) both
   --gf-info-rayon: var(--r-lg); --gf-info-fermer: var(--glass);
   --gf-info-titre: var(--text); --gf-info-texte: var(--text-2); --gf-info-lien: var(--accent-strong);
 }
-/* Le « i » se place avant la pastille profil, à droite de la barre. */
-header .gf-info-btn { margin-left: auto; }
-header .gf-info-btn + .topbar-profile { margin-left: 6px; }
 
 /* ── Bouton « i » + modale « À propos » ──────────────────────────────────────
    Patron des cartes (MAP-DESIGN-SYSTEM.md), sans l'anneau qui pulse : la
@@ -614,3 +758,60 @@ header .gf-info-btn + .topbar-profile { margin-left: 6px; }
   .gf-info-panel { transform: none; }
 }
 @media print { .gf-info-btn, .gf-info-overlay { display: none !important; } }
+
+/* ── Titre dans la barre : apparaît quand le grand titre sort de l'écran ─────
+   js/titre-barre.js pose .titre-en-vue sur la barre tant que le grand titre
+   est visible, puis .titre-anime après le chargement (barre et titre : voir
+   le script). Seul le texte disparaît :
+   l'icône reste en haut à gauche. Sans JS, le titre reste
+   simplement affiché dans la barre. Entrée : dévoilement de gauche à droite,
+   flou → net, léger mouvement vers le haut ; puis le trait vert se dessine
+   dessous, en écho à celui du grand titre. */
+.brand-texte {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 5px;
+  clip-path: inset(0 0 0 0);
+}
+.brand-texte::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 22px; height: 3px; border-radius: 3px;
+  background: var(--accent);
+  transform-origin: left;
+}
+.titre-anime .brand-texte {
+  transition:
+    clip-path .6s cubic-bezier(.2, .8, .2, 1),
+    transform .6s cubic-bezier(.2, .8, .2, 1),
+    filter .45s ease,
+    opacity .35s ease,
+    visibility 0s 0s;
+}
+.titre-anime .brand-texte::after { transition: transform .45s cubic-bezier(.2, .8, .2, 1) .3s; }
+.titre-en-vue .brand-texte {
+  clip-path: inset(0 100% 0 0);
+  transform: translateY(8px);
+  filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+}
+/* En sortie : tout repart en même temps, et visibility attend la fin. */
+.titre-anime.titre-en-vue .brand-texte {
+  transition:
+    clip-path .35s ease-in,
+    transform .35s ease-in,
+    filter .3s ease-in,
+    opacity .3s ease-in,
+    visibility 0s .35s;
+}
+.titre-en-vue .brand-texte::after { transform: scaleX(0); transition-delay: 0s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .titre-anime .brand-texte,
+  .titre-anime.titre-en-vue .brand-texte { transition: opacity .2s, visibility 0s; }
+  .titre-en-vue .brand-texte { clip-path: none; transform: none; filter: none; }
+  .brand-texte::after { transition: none !important; }
+}
+@media print {
+  .titre-en-vue .brand-texte { opacity: 1; visibility: visible; clip-path: none; transform: none; filter: none; }
+}

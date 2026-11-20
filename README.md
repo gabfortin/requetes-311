@@ -109,15 +109,17 @@ l'agrégation se font dans le navigateur.
 | `docs/proprete.html`, `docs/circulation.html` | Sections par catégorie |
 | `docs/annee.html` | Bilan annuel |
 | `docs/categorie.js`, `docs/categorie.css` | Logique et styles communs aux sections par catégorie |
+| `docs/icones.js` | Icônes SVG des catégories et des indicateurs du bilan annuel (animées au survol des cartes, styles dans `glass.css`) |
 | `docs/glass.css` | Thème visuel (style B, comme compteurvelo.com), mode clair et sombre |
 | `docs/chargement.js`, `docs/chargement.css`, `docs/chargement-fiches.css` | Écran d'attente : base commune (copie de `outils/communs/`) et scène (fiches 311) |
 | `docs/chart-theme.js` | Couleurs des graphiques lues depuis `glass.css` |
-| `docs/apropos.js` | Bouton « i » et fenêtre « À propos » (composant commun) |
+| `docs/apropos.js`, `docs/titre-barre.js` | Composants communs (bouton « i » et fenêtre « À propos », titre dans la barre au défilement) |
 | `docs/confidentialite.html` | Politique de confidentialité |
 | `docs/data.js`, `docs/rows.js` | Tables de correspondance et requêtes encodées (générés) |
 | `docs/proprete_data.js`, `docs/circulation_data.js` | Agrégats mensuels par catégorie (générés) |
 | `docs/version.js` | Version du site et date des données (écrit par le robot et par le hook de version) |
-| `docs/img/` | Photo de l'auteur (barre du haut) |
+| `docs/favicon.svg`, `docs/favicon.png`, `docs/apple-touch-icon.png` | Icônes du site (casier, fiches, téléphone), dessinées par `~/Developer/outils/icones/icones_sites.py` |
+| `docs/img/` | Photo de l'auteur (barre du haut), `logo.svg` (icône détaillée ; le logo de la vue d'ensemble en est une copie écrite dans `index.html`, animée par `animerLogo()`), `apercu.jpg` (aperçu de partage, 1200 × 630) |
 | `scripts/bump_version.sh` | Ajoute 1 à z de la version (robot et Docker) |
 | `tests/` | Tests unitaires et d'intégrité des données |
 | `Dockerfile`, `entrypoint.sh` | Alternative conteneurisée au robot |

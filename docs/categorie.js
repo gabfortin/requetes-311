@@ -87,7 +87,7 @@ function buildKpiCards(ref, m1, m2, y1, y2) {
     return `
       <div class="kpi-card" style="--cat-color:${cat.color}">
         <div class="kpi-cat-header">
-          <span class="kpi-icon">${cat.icon}</span>
+          <span class="kpi-icon">${icone(cat.id)}</span>
           <span class="kpi-cat-label">${cat.label}</span>
         </div>
         <div class="kpi-main">${fmt(curr)}</div>
@@ -437,7 +437,7 @@ function checkAlerts(ref) {
     div.className = "alert-banner";
     div.style.setProperty("--cat-color", cat.color);
     div.innerHTML = `
-      <span>${cat.icon}</span>
+      <span class="alert-ico">${icone(cat.id)}</span>
       <span class="alert-text">
         <strong>${cat.label}</strong> — ${vFmt} (${METRIC_LABELS[s.metric]}) est ${dir} au seuil de ${tFmt}
       </span>
@@ -480,7 +480,7 @@ function openModal() {
     return `
       <div class="alert-card" style="--cat-color:${cat.color}" data-cat="${cat.id}">
         <div class="alert-card-header">
-          <span class="alert-cat-icon">${cat.icon}</span>
+          <span class="alert-cat-icon">${icone(cat.id)}</span>
           <span class="alert-cat-label">${cat.label}</span>
           <span class="alert-cur-val" id="acv-${cat.id}">Actuel : ${cur}</span>
           <label class="toggle-sw">

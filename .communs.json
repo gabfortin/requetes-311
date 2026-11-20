@@ -11,11 +11,13 @@
     "docs/vendor/chartjs/chart.umd.min.js": "chartjs/chart.umd.min.js",
     "docs/vendor/chartjs/LICENSE-chartjs.md": "chartjs/LICENSE-chartjs.md",
     "docs/chargement.css": "chargement.css",
-    "docs/chargement.js": "chargement.js"
+    "docs/chargement.js": "chargement.js",
+    "docs/titre-barre.js": "titre-barre.js"
   },
   "blocs": {
     "docs/glass.css": [
-      "apropos.css"
+      "apropos.css",
+      "titre-barre.css"
     ]
   }
 }

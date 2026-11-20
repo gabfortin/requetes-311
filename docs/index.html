@@ -4,10 +4,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Requêtes 311 — Le Plateau-Mont-Royal</title>
-  <script src="vendor/chartjs/chart.umd.min.js?v=1.2.0"></script>
-  <script src="chargement.js?v=1.2.0"></script>
-  <script src="chart-theme.js?v=1.2.0"></script>
-  <script src="version.js?v=1.2.0"></script>
+  <meta name="description" content="Requêtes adressées au 311 de la Ville de Montréal pour le Plateau-Mont-Royal depuis 2022 : évolution, propreté, circulation. Données ouvertes mises à jour chaque jour." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="canonical" href="https://311.gabfortin.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Gabriel Fortin" />
+  <meta property="og:title" content="Requêtes 311 — Le Plateau-Mont-Royal" />
+  <meta property="og:description" content="Requêtes adressées au 311 de la Ville de Montréal pour le Plateau-Mont-Royal depuis 2022 : évolution, propreté, circulation. Données ouvertes mises à jour chaque jour." />
+  <meta property="og:url" content="https://311.gabfortin.com/" />
+  <meta property="og:image" content="https://311.gabfortin.com/img/apercu.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Tableau de bord des requêtes 311 du Plateau-Mont-Royal" />
+  <meta property="og:locale" content="fr_CA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Requêtes 311 — Le Plateau-Mont-Royal" />
+  <meta name="twitter:description" content="Requêtes adressées au 311 de la Ville de Montréal pour le Plateau-Mont-Royal depuis 2022 : évolution, propreté, circulation. Données ouvertes mises à jour chaque jour." />
+  <meta name="twitter:image" content="https://311.gabfortin.com/img/apercu.jpg" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "Requêtes 311 — Le Plateau-Mont-Royal",
+    "description": "Requêtes adressées au 311 de la Ville de Montréal pour le Plateau-Mont-Royal depuis 2022 : évolution, propreté, circulation. Données ouvertes mises à jour chaque jour.",
+    "url": "https://311.gabfortin.com/",
+    "image": "https://311.gabfortin.com/img/apercu.jpg",
+    "inLanguage": "fr-CA",
+    "temporalCoverage": "2022/..",
+    "spatialCoverage": { "@type": "Place", "name": "Le Plateau-Mont-Royal, Montréal, Québec" },
+    "author": { "@type": "Person", "@id": "https://gabfortin.com/#gabriel-fortin", "name": "Gabriel Fortin", "url": "https://gabfortin.com" },
+    "isBasedOn": "https://donnees.montreal.ca/dataset/requete-311"
+  }
+  </script>
+  <script src="vendor/chartjs/chart.umd.min.js?v=1.3.0"></script>
+  <script src="chargement.js?v=1.3.0"></script>
+  <script src="chart-theme.js?v=1.3.0"></script>
+  <script src="version.js?v=1.3.0"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -247,9 +281,9 @@
       #acti-dropdown { width: calc(100vw - 2rem); max-width: 340px; }
     }
   </style>
-  <link rel="stylesheet" href="chargement.css?v=1.2.0" />
-  <link rel="stylesheet" href="chargement-fiches.css?v=1.2.0" />
-  <link rel="stylesheet" href="glass.css?v=1.2.0" />
+  <link rel="stylesheet" href="chargement.css?v=1.3.0" />
+  <link rel="stylesheet" href="chargement-fiches.css?v=1.3.0" />
+  <link rel="stylesheet" href="glass.css?v=1.3.0" />
   <script>window.goatcounter = {path: function(p) { return location.host + p }}</script>
   <script data-goatcounter="https://gabfortin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -269,26 +303,34 @@
 
 <div class="topbar">
 <header>
-  <span class="logo-icone" aria-hidden="true">📞</span>
-  <div class="logo">Requêtes <span>311</span></div>
-  <button type="button" class="gf-info-btn" id="gfInfoBtn" aria-label="À propos de ce site" aria-haspopup="dialog" aria-controls="gfInfoOverlay" title="À propos">
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="7.6" r="1.4" fill="currentColor"/><path d="M12 11v6.2" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
-  </button>
-  <a class="topbar-profile" href="https://gabfortin.com" target="_blank" rel="noopener" title="gabfortin.com">
-    <span class="topbar-profile-name">gabfortin.com</span>
-    <img src="img/gabriel-fortin.jpg" alt="Gabriel Fortin" width="34" height="34">
-  </a>
+  <a class="marque" href="index.html" aria-label="Requêtes 311"><span class="brand-texte">Requêtes 311</span></a>
+  <nav class="tabs" aria-label="Sections">
+    <a class="tab active" href="index.html" aria-current="page"><span class="tab-long">Vue d'ensemble</span><span class="tab-court">Aperçu</span></a>
+    <a class="tab" href="proprete.html">Propreté</a>
+    <a class="tab" href="circulation.html">Circulation</a>
+    <a class="tab" href="annee.html"><span class="tab-long">Bilan annuel</span><span class="tab-court">Bilan</span></a>
+  </nav>
+  <div class="topbar-droite">
+    <button type="button" class="gf-info-btn" id="gfInfoBtn" aria-label="À propos de ce site" aria-haspopup="dialog" aria-controls="gfInfoOverlay" title="À propos">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="7.6" r="1.4" fill="currentColor"/><path d="M12 11v6.2" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
+    </button>
+    <a class="topbar-profile" href="https://gabfortin.com" target="_blank" rel="noopener" title="gabfortin.com">
+      <span class="topbar-profile-name">gabfortin.com</span>
+      <img src="img/gabriel-fortin.jpg" alt="Gabriel Fortin" width="34" height="34">
+    </a>
+  </div>
 </header>
-
-<nav class="tabs">
-  <a class="tab active" href="index.html" aria-current="page">Vue d'ensemble</a>
-  <a class="tab" href="proprete.html">🧹 Propreté</a>
-  <a class="tab" href="circulation.html">🚦 Circulation</a>
-  <a class="tab" href="annee.html">📅 Bilan annuel</a>
-</nav>
 </div>
+<script src="titre-barre.js?v=1.3.0" data-barre=".topbar" data-titre="#entete h1"></script>
 
-<p class="freshness" id="fraicheur">Données à jour au <span id="fraicheur-date">—</span> · mises à jour automatiquement chaque jour</p>
+<div class="site-header" id="entete">
+  <!-- Logo écrit dans la page (même dessin que img/logo.svg, outils/icones/icones_sites.py) pour animer
+       la chute des fiches dans le casier pendant 8 s après l'écran d'attente (classe .logo-anime) -->
+  <svg class="logo-accueil" id="logo-accueil" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="112" height="112" aria-hidden="true" focusable="false"><defs><clipPath id="la-t"><rect width="512" height="512" rx="112"/></clipPath><linearGradient id="la-ciel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2fbf5"/><stop offset="1" stop-color="#d4f1df"/></linearGradient><filter id="la-lf" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="f"/><feFlood flood-color="#000" flood-opacity="0.18"/><feComposite in2="f" operator="in" result="l"/><feMerge><feMergeNode in="l"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="la-lt" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur in="SourceAlpha" stdDeviation="9" result="f"/><feFlood flood-color="#1DB860" flood-opacity="0.7"/><feComposite in2="f" operator="in" result="l"/><feMerge><feMergeNode in="l"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g clip-path="url(#la-t)"><rect width="512" height="512" fill="url(#la-ciel)"/><g class="fiche fiche-1"><g transform="rotate(0 256.0 408.0)" filter="url(#la-lf)"><rect x="140" y="380" width="232" height="56" rx="10" fill="#fff"/><rect x="140" y="380" width="14" height="56" rx="7" fill="#1DB860"/><rect x="172.48000000000002" y="395.68" width="139.2" height="6.72" rx="4" fill="#000" opacity=".22"/><rect x="172.48000000000002" y="412.48" width="92.80000000000001" height="6.72" rx="4" fill="#000" opacity=".22"/></g></g><g class="fiche fiche-2"><g transform="rotate(-6 256.0 346.0)" filter="url(#la-lf)"><rect x="140" y="318" width="232" height="56" rx="10" fill="#fff"/><rect x="140" y="318" width="14" height="56" rx="7" fill="#1DB860"/><rect x="172.48000000000002" y="333.68" width="139.2" height="6.72" rx="4" fill="#000" opacity=".22"/><rect x="172.48000000000002" y="350.48" width="92.80000000000001" height="6.72" rx="4" fill="#000" opacity=".22"/></g></g><g class="fiche fiche-3"><g transform="rotate(5 256.0 284.0)" filter="url(#la-lf)"><rect x="140" y="256" width="232" height="56" rx="10" fill="#fff"/><rect x="140" y="256" width="14" height="56" rx="7" fill="#1DB860"/><rect x="172.48000000000002" y="271.68" width="139.2" height="6.72" rx="4" fill="#000" opacity=".22"/><rect x="172.48000000000002" y="288.48" width="92.80000000000001" height="6.72" rx="4" fill="#000" opacity=".22"/></g></g><path d="M96 300 V426 Q96 462 132 462 H380 Q416 462 416 426 V300 Z" fill="#1DB860" fill-opacity=".1" stroke="none"/><path d="M96 300 V426 Q96 462 132 462 H380 Q416 462 416 426 V300" fill="none" stroke="#1DB860" stroke-width="16" stroke-linecap="round"/><g class="tel"><circle class="tel-onde" cx="118" cy="112" r="74" fill="none" stroke="#1DB860" stroke-width="6" opacity=".4"/><circle cx="118" cy="112" r="54" fill="#1DB860" filter="url(#la-lt)"/><g transform="translate(92 86) scale(2.15) rotate(-12 12 12)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g></g></g></svg>
+  <h1>Requêtes <span>311</span></h1>
+  <p class="subtitle">Les requêtes adressées au 311 de la Ville de Montréal pour Le Plateau-Mont-Royal, depuis 2022</p>
+  <p class="freshness" id="fraicheur"><span>Données à jour au <span id="fraicheur-date">—</span> · mises à jour automatiquement chaque jour</span></p>
+</div>
 
 <div class="filters">
   <!-- Année (multi-sélection) -->
@@ -857,6 +899,56 @@ async function withRetry(fn, attempts = 2) {
   throw lastErr;
 }
 
+// Logo de l'en-tête : après l'écran d'attente, des fiches tombent en rafale dans le
+// casier pendant ~4 s (une toutes les 160 ms) ; chaque fiche qui arrive pousse la pile vers le bas et le casier
+// avale celle du fond. Les fiches animées sont des copies de la fiche du bas (.fiche-1) ;
+// à la fin, les trois dernières occupent exactement la place des fiches du dessin fixe.
+function animerLogo() {
+  const svg = document.getElementById("logo-accueil");
+  if (!svg || !svg.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const fixes = svg.querySelectorAll(".fiche"), modele = fixes[0];
+  const parent = modele.parentNode, apres = fixes[fixes.length - 1].nextSibling;
+  const PAS = 160, CHUTE = 300, GLISSE = 110, REBOND = 220;          // ms (GLISSE < PAS)
+  const N = Math.round((4000 - CHUTE - REBOND) / PAS) + 1;           // fiches qui tombent
+  const FIN = (N - 1) * PAS + CHUTE, DUREE = FIN + REBOND;           // ≈ 4 s
+  const place = (y, r) => `translateY(${y}px) rotate(${r}deg)`;
+  const PLACES = [place(0, 0), place(-62, -6), place(-124, 5)];      // bas, milieu, haut (comme le dessin)
+  const HAUT = place(-470, -8), SORTIE = place(56, 0);                // hors de la tuile ; avalée par le fond
+  const atterrit = (j) => j * PAS + CHUTE;
+  svg.classList.add("logo-anime");
+  const copies = [], anims = [];
+  for (let k = 0; k < N + 3; k++) {
+    const j = k - 3;                       // j < 0 : fiches déjà dans le casier au départ
+    const im = [];                         // [temps, transform, opacité, easing du segment suivant]
+    let p;
+    if (j < 0) { p = k; im.push([0, PLACES[p], 1]); }
+    else {
+      p = 2;
+      im.push([0, HAUT, 1], [j * PAS, HAUT, 1, "cubic-bezier(.55, 0, 1, .45)"], [atterrit(j), PLACES[2], 1]);
+      if (j === N - 1) {                   // la dernière rebondit avant de s'arrêter
+        im[im.length - 1][3] = "ease-out";
+        im.push([atterrit(j) + REBOND / 2, place(-133, 5), 1, "ease-in"], [atterrit(j) + REBOND, PLACES[2], 1]);
+      }
+    }
+    for (let m = Math.max(j + 1, 0); m < N && p >= 0; m++, p--) {
+      im.push([atterrit(m) - GLISSE, PLACES[p], 1, "ease-in-out"],
+              p > 0 ? [atterrit(m), PLACES[p - 1], 1] : [atterrit(m), SORTIE, 0]);
+    }
+    const der = im[im.length - 1];
+    if (der[0] < DUREE) im.push([DUREE, der[1], der[2]]);
+    const c = modele.cloneNode(true);
+    c.classList.add("fiche-anim");
+    parent.insertBefore(c, apres);
+    copies.push(c);
+    anims.push(c.animate(im.map(([t, transform, opacity, easing]) =>
+      ({ offset: t / DUREE, transform, opacity, easing: easing || "linear" })), { duration: DUREE, fill: "forwards" }));
+  }
+  Promise.all(anims.map((a) => a.finished)).then(() => {
+    copies.forEach((c) => c.remove());
+    svg.classList.remove("logo-anime");
+  });
+}
+
 async function init() {
   const loadingEl = document.getElementById("loading");
   try {
@@ -868,7 +960,7 @@ async function init() {
     for (const [,, ai] of ROWS) if (ai >= 0) ACTI_TOTAL[ai]++;
     TERM_IDX = STATUSES.indexOf("Terminée");
 
-    Chargement.fermer(loadingEl, document.querySelector("main"));
+    Chargement.fermer(loadingEl, document.querySelector("main")).then(animerLogo);
     render();
   } catch (e) {
     Chargement.erreur(loadingEl, "Impossible de charger les données", e.message);
@@ -880,6 +972,6 @@ init();
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
 document.getElementById("fraicheur-date").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
-<script src="apropos.js?v=1.2.0"></script>
+<script src="apropos.js?v=1.3.0"></script>
 </body>
 </html>
