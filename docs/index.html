@@ -38,10 +38,10 @@
     "isBasedOn": "https://donnees.montreal.ca/dataset/requete-311"
   }
   </script>
-  <script src="vendor/chartjs/chart.umd.min.js?v=1.3.0"></script>
-  <script src="chargement.js?v=1.3.0"></script>
-  <script src="chart-theme.js?v=1.3.0"></script>
-  <script src="version.js?v=1.3.0"></script>
+  <script src="vendor/chartjs/chart.umd.min.js?v=1.4.0"></script>
+  <script src="chargement.js?v=1.4.0"></script>
+  <script src="chart-theme.js?v=1.4.0"></script>
+  <script src="version.js?v=1.4.0"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -281,9 +281,10 @@
       #acti-dropdown { width: calc(100vw - 2rem); max-width: 340px; }
     }
   </style>
-  <link rel="stylesheet" href="chargement.css?v=1.3.0" />
-  <link rel="stylesheet" href="chargement-fiches.css?v=1.3.0" />
-  <link rel="stylesheet" href="glass.css?v=1.3.0" />
+  <link rel="stylesheet" href="chargement.css?v=1.4.0" />
+  <link rel="stylesheet" href="chargement-fiches.css?v=1.4.0" />
+  <link rel="stylesheet" href="glass.css?v=1.4.0" />
+  <link rel="stylesheet" href="sobriete.css?v=1.4.0" />
   <script>window.goatcounter = {path: function(p) { return location.host + p }}</script>
   <script data-goatcounter="https://gabfortin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -321,7 +322,7 @@
   </div>
 </header>
 </div>
-<script src="titre-barre.js?v=1.3.0" data-barre=".topbar" data-titre="#entete h1"></script>
+<script src="titre-barre.js?v=1.4.0" data-barre=".topbar" data-titre="#entete h1"></script>
 
 <div class="site-header" id="entete">
   <!-- Logo écrit dans la page (même dessin que img/logo.svg, outils/icones/icones_sites.py) pour animer
@@ -972,6 +973,6 @@ init();
 document.getElementById("app-version").textContent = typeof APP_VERSION !== "undefined" ? APP_VERSION : "?";
 document.getElementById("fraicheur-date").textContent = typeof DATA_UPDATED_AT !== "undefined" ? new Date(DATA_UPDATED_AT + "T12:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" }) : "?";
 </script>
-<script src="apropos.js?v=1.3.0"></script>
+<script src="apropos.js?v=1.4.0"></script>
 </body>
 </html>

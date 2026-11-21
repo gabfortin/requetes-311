@@ -1,0 +1,100 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sobriété du style B (adoptée en novembre 2026, DESIGN-PAGES.md, B,
+   « Sobriété ») : chargée après la feuille principale, elle retire ce qui
+   fait « tableau de bord généré » : titre en dégradé, halos de couleur,
+   barre flottante en pilule, pilules à dégradé brillant, gros chiffres
+   verts et étiquettes en majuscules espacées, ombres et soulèvements.
+   Même contenu dans compteur-velo (assets/sobriete.css) et requetes-311
+   (docs/sobriete.css), aux sélecteurs propres à chaque site près.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 6. Titre en couleur unie (« 311 » reste en vert) au lieu du dégradé */
+.site-header h1 {
+  background: none;
+  -webkit-background-clip: border-box; background-clip: border-box;
+  color: var(--text);
+}
+.site-header h1 span { color: var(--accent-strong); }
+
+/* 7. Icônes des catégories sans carré teinté : l'icône seule, à la couleur
+   de la catégorie (la barre de couleur en haut de la carte reste) */
+.kpi-icon {
+  width: auto; height: auto;
+  background: none; border: none;
+  color: var(--cat-color, var(--accent));
+}
+
+/* 8. Fond : un seul dégradé vert, plus franc, derrière l'en-tête (au lieu des
+   quatre halos), qui défile avec la page */
+html { background: #f1f5f2; }
+body::before {
+  position: absolute; inset: 0 0 auto 0; height: 640px;
+  background: linear-gradient(180deg, rgba(29,184,96,0.22) 0%, rgba(29,184,96,0.07) 55%, rgba(29,184,96,0) 100%);
+  animation: none;
+}
+@media (prefers-color-scheme: dark) {
+  html:where(:not([data-theme="light"])) { background: #0b1310; }
+  :where(:root:not([data-theme="light"])) body::before {
+    background: linear-gradient(180deg, rgba(61,220,132,0.14) 0%, rgba(61,220,132,0.04) 55%, rgba(61,220,132,0) 100%);
+  }
+}
+
+/* Cartes, tuiles, filtres et bandeaux : fond uni, sans ombre ni soulèvement */
+.card, .chart-card, .kpi, .kpi:hover, .kpi-card, .filters, .period-banner, .alert-banner {
+  box-shadow: none; transform: none;
+}
+.kpi, .kpi:hover { background: var(--glass-strong); }
+/* Tuiles par catégorie : plus de halo de couleur dans le coin (la barre du haut reste) */
+.kpi-card { background: var(--glass-strong); }
+
+/* Chiffres en couleur du texte ; étiquettes en minuscules normales */
+.kpi .kpi-value, .kpi.green .kpi-value, .kpi.orange .kpi-value { color: var(--text); }
+.filter-label, .kpi .kpi-label, .pb-sel-group label, .alert-field label {
+  text-transform: none; letter-spacing: 0;
+  font-size: .8rem; font-weight: 500; color: var(--text-2);
+}
+
+/* Noms de catégorie (tuiles et alertes) : minuscules normales, toujours à la
+   couleur de la catégorie */
+.kpi-cat-label, .alert-cat-label { text-transform: none; letter-spacing: 0; font-size: .9rem; }
+
+/* Barre du haut : pleine largeur, collée en haut, sans pilule flottante ;
+   onglets soulignés au lieu de pastilles */
+.topbar {
+  top: 0; margin: 0; width: 100%; max-width: none;
+  border: none; border-bottom: 1px solid var(--glass-border);
+  border-radius: 0; box-shadow: none;
+  background: var(--glass-strong);
+  animation: none;
+}
+.topbar > header { max-width: 1200px; margin: 0 auto; align-items: stretch; }
+.topbar > header > .marque, .topbar > header > .topbar-droite { align-items: center; }
+.tabs { align-self: stretch; align-items: stretch; }
+.tab {
+  display: flex; align-items: center;
+  border-radius: 0; background: none; box-shadow: none;
+  border-bottom: 2px solid transparent;
+}
+.tab:hover { background: none; color: var(--text); }
+.tab.active {
+  background: none; box-shadow: none;
+  color: var(--text); border-bottom: 2px solid var(--accent-strong);
+}
+
+/* Boutons de filtre : rectangles sobres ; actif en vert pâle au lieu du
+   dégradé vert brillant (les natures gardent leur couleur, mais à plat) */
+.filter-btn, .toggle-btn, .period-edit-btn, .pb-reset-btn, .btn-ghost, .btn-test, .notif-btn {
+  border-radius: 8px; box-shadow: none;
+}
+.filter-btn:active, .toggle-btn:active, .btn:active { transform: none; }
+.filter-btn.active, .toggle-btn.active, .acti-chip {
+  background: var(--accent-soft); color: var(--accent-strong);
+  border-color: var(--accent-strong); box-shadow: none;
+}
+.btn-primary, .pb-apply-btn,
+.btn-primary:hover, .pb-apply-btn:hover {
+  background: var(--accent-strong); box-shadow: none; filter: none;
+}
+.filter-btn[data-nature="Requete"].active     { background: #36639f; color: #fff; border-color: #36639f; box-shadow: none; }
+.filter-btn[data-nature="Plainte"].active     { background: #a53f37; color: #fff; border-color: #a53f37; box-shadow: none; }
+.filter-btn[data-nature="Commentaire"].active { background: #149a4f; color: #fff; border-color: #149a4f; box-shadow: none; }

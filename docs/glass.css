@@ -11,7 +11,8 @@
    couleurs passent par les jetons ci-dessous, y compris celles des graphiques
    (--chart-*, lues par chart-theme.js).
    ═══════════════════════════════════════════════════════════════════════════ */
-@import url("fonts/polices.css");   /* Inter hébergée sur le site (outils/communs/polices/) */
+@import url("fonts/polices.css");   /* polices hébergées sur le site (outils/communs/polices/) */
+@import url("fonts/plex-sans.css"); /* IBM Plex Sans, police du style B */
 
 /* ── Jetons : mode clair ─────────────────────────────────────────────────── */
 :root {
@@ -45,7 +46,7 @@
   --avatar-ring:  rgba(255,255,255,.9);
   --switch-off:   rgba(15,40,28,.18);
   --overlay:      rgba(10,22,16,.28);
-  --loading-bg:   rgba(234,243,238,.6);
+  --loading-bg:   rgba(238,243,240,.35);
 
   --blur:      saturate(180%) blur(22px);
   --shadow:    0 1px 1px rgba(15,40,28,.03), 0 10px 36px -8px rgba(15,40,28,.12);
@@ -56,10 +57,10 @@
 
   /* Fond « mesh » */
   --page:   #eaf3ee;
-  --mesh-1: rgba(29,184,96,.38);
-  --mesh-2: rgba(41,171,226,.30);
-  --mesh-3: rgba(139,92,246,.18);
-  --mesh-4: rgba(250,204,21,.20);
+  --mesh-1: rgba(29,184,96,.21);
+  --mesh-2: rgba(41,171,226,.17);
+  --mesh-3: rgba(139,92,246,.10);
+  --mesh-4: rgba(250,204,21,.11);
   --mesh-base: linear-gradient(160deg, #f3faf6 0%, #e9f4f1 50%, #eef1f8 100%);
   --dots:   rgba(15,40,28,.07);
 
@@ -115,15 +116,15 @@
     --avatar-ring:  rgba(255,255,255,.15);
     --switch-off:   rgba(255,255,255,.16);
     --overlay:      rgba(0,0,0,.5);
-    --loading-bg:   rgba(11,19,16,.7);
+    --loading-bg:   rgba(8,12,10,.4);
     --shadow:    0 1px 1px rgba(0,0,0,.2), 0 10px 36px -8px rgba(0,0,0,.5);
     --shadow-lg: 0 2px 2px rgba(0,0,0,.2), 0 24px 60px -16px rgba(0,0,0,.6);
     --inner:     inset 0 1px 0 rgba(255,255,255,.05);
     --page:   #0b1310;
-    --mesh-1: rgba(29,184,96,.16);
-    --mesh-2: rgba(41,171,226,.12);
-    --mesh-3: rgba(139,92,246,.10);
-    --mesh-4: rgba(250,204,21,.06);
+    --mesh-1: rgba(29,184,96,.09);
+    --mesh-2: rgba(41,171,226,.07);
+    --mesh-3: rgba(139,92,246,.06);
+    --mesh-4: rgba(250,204,21,.03);
     --mesh-base: linear-gradient(160deg, #0b1411 0%, #0c1416 50%, #10131b 100%);
     --dots:   rgba(255,255,255,.05);
     --good: #6ee7a0; --good-bg: rgba(29,184,96,.16);
@@ -165,15 +166,15 @@
   --avatar-ring:  rgba(255,255,255,.15);
   --switch-off:   rgba(255,255,255,.16);
   --overlay:      rgba(0,0,0,.5);
-  --loading-bg:   rgba(11,19,16,.7);
+  --loading-bg:   rgba(8,12,10,.4);
   --shadow:    0 1px 1px rgba(0,0,0,.2), 0 10px 36px -8px rgba(0,0,0,.5);
   --shadow-lg: 0 2px 2px rgba(0,0,0,.2), 0 24px 60px -16px rgba(0,0,0,.6);
   --inner:     inset 0 1px 0 rgba(255,255,255,.05);
   --page:   #0b1310;
-  --mesh-1: rgba(29,184,96,.16);
-  --mesh-2: rgba(41,171,226,.12);
-  --mesh-3: rgba(139,92,246,.10);
-  --mesh-4: rgba(250,204,21,.06);
+  --mesh-1: rgba(29,184,96,.09);
+  --mesh-2: rgba(41,171,226,.07);
+  --mesh-3: rgba(139,92,246,.06);
+  --mesh-4: rgba(250,204,21,.03);
   --mesh-base: linear-gradient(160deg, #0b1411 0%, #0c1416 50%, #10131b 100%);
   --dots:   rgba(255,255,255,.05);
   --good: #6ee7a0; --good-bg: rgba(29,184,96,.16);
@@ -196,8 +197,8 @@
 /* ── Base et fond ────────────────────────────────────────────────────────── */
 html { background: var(--page); }
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-feature-settings: 'cv11', 'ss01', 'tnum';
+  font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: 'tnum';
   -webkit-font-smoothing: antialiased;
   background: transparent;
   color: var(--text);
@@ -531,7 +532,14 @@ main { max-width: calc(1200px + 3rem) !important; padding-top: .25rem; animation
 .toggle-track { background: var(--switch-off); }
 
 /* Écran d'attente (#loading) : base commune chargement.css ; ici le fond de la page */
-#loading { background: var(--loading-bg); }
+/* Voile léger : la page d'accueil reste visible derrière, sous un flou gaussien doux */
+body .gf-don-btn { font-family: inherit; }   /* bouton « Me supporter » (don.js) : police du site */
+
+#loading {
+  background: var(--loading-bg);
+  -webkit-backdrop-filter: blur(4px) saturate(120%);
+          backdrop-filter: blur(4px) saturate(120%);
+}
 
 /* ── Signature : pastille profil (barre du haut) et pied de page ────────── */
 .topbar-profile {
@@ -679,34 +687,33 @@ main { max-width: calc(1200px + 3rem) !important; padding-top: .25rem; animation
 
 /* Couleurs du bouton « i » et de la modale « À propos » (bloc commun ci-dessous) */
 :root {
-  --gf-info-1: #1DB860; --gf-info-2: #129a4c; --gf-info-glow: rgba(18,154,76,.6);
+  --gf-info-1: #1DB860; --gf-info-2: #129a4c; --gf-info-trait: var(--accent-strong);
   --gf-info-fond: var(--glass-solid); --gf-info-bordure: var(--glass-border);
   --gf-info-rayon: var(--r-lg); --gf-info-fermer: var(--glass);
   --gf-info-titre: var(--text); --gf-info-texte: var(--text-2); --gf-info-lien: var(--accent-strong);
 }
 
 /* ── Bouton « i » + modale « À propos » ──────────────────────────────────────
-   Patron des cartes (MAP-DESIGN-SYSTEM.md), sans l'anneau qui pulse : la
-   pulsation est réservée aux cartes (DESIGN-PAGES.md). Bloc identique dans
-   tous les sites hors cartes ; seules les couleurs --gf-info-* (définies
-   juste au-dessus) changent d'un site à l'autre. Script : apropos.js. */
+   Version sobre (novembre 2026), la même que sur les cartes
+   (MAP-DESIGN-SYSTEM.md) : cercle à contour de 1,5 px, fond transparent, sans
+   dégradé, ombre, pulsation ni grossissement ; teinte légère au survol.
+   Bloc identique dans tous les sites hors cartes ; seules les variables
+   --gf-info-* (définies juste au-dessus) changent d'un site à l'autre.
+   --gf-info-trait : couleur du contour et du « i » (repli : --gf-info-2) ;
+   la faire suivre le mode sombre. Script : apropos.js. */
 .gf-info-btn {
   position: relative;
   display: flex; align-items: center; justify-content: center;
   width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-  border: none; padding: 0;
-  background: linear-gradient(140deg, var(--gf-info-1), var(--gf-info-2));
-  color: #fff; cursor: pointer;
-  box-shadow: 0 4px 14px -4px var(--gf-info-glow), inset 0 1px 0 rgba(255,255,255,.45);
-  transition: transform .2s cubic-bezier(.22,.68,0,1), box-shadow .2s cubic-bezier(.22,.68,0,1);
+  padding: 0;
+  border: 1.5px solid currentColor;   /* même épaisseur que « Me soutenir » (don.js) */
+  background: transparent;
+  color: var(--gf-info-trait, var(--gf-info-2)); cursor: pointer;
+  transition: background-color .2s ease;
 }
 .gf-info-btn svg { width: 16px; height: 16px; }
-.gf-info-btn:hover {
-  box-shadow: 0 8px 22px -4px var(--gf-info-glow), inset 0 1px 0 rgba(255,255,255,.5);
-  transform: translateY(-1px) scale(1.1);
-}
-.gf-info-btn:active { transform: scale(.94); }
-.gf-info-btn:focus-visible { outline: 2px solid var(--gf-info-2); outline-offset: 3px; }
+.gf-info-btn:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+.gf-info-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .gf-info-overlay {
   position: fixed; inset: 0; z-index: 2000;
   background: rgba(10,16,13,.45);
@@ -754,7 +761,6 @@ main { max-width: calc(1200px + 3rem) !important; padding-top: .25rem; animation
 }
 @media (prefers-reduced-motion: reduce) {
   .gf-info-btn, .gf-info-panel { transition: none; }
-  .gf-info-btn:hover { transform: none; }
   .gf-info-panel { transform: none; }
 }
 @media print { .gf-info-btn, .gf-info-overlay { display: none !important; } }

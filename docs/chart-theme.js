@@ -27,7 +27,7 @@ function applyChartTheme() {
     pointHover:v("--chart-point-hover", "#ffffff"),
   };
 
-  Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  Chart.defaults.font.family = "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   Chart.defaults.color = CT.text;
   Chart.defaults.borderColor = CT.grid;
   Chart.defaults.elements.arc.borderColor = CT.arcBorder;
