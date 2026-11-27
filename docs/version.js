@@ -1,3 +1,3 @@
 // Version de l'application (incrémentée automatiquement à chaque mise à jour des données)
-var APP_VERSION = "1.4.5";
-var DATA_UPDATED_AT = "2026-11-26";
+var APP_VERSION = "1.4.6";
+var DATA_UPDATED_AT = "2026-11-27";
